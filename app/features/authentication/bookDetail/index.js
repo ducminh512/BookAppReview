@@ -213,7 +213,7 @@ const BookDetail = ({ route }) => {
                     />
                     <View style={{ paddingLeft: 10 }}>
                       <Text style={{ fontFamily: "Roboto_500Medium" }}>
-                        Tran Dinh Huy
+                        Dao Duc Minh
                       </Text>
                       <Rating
                         type="star"
