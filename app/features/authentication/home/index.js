@@ -1,24 +1,4 @@
-import {
-  Oswald_200ExtraLight,
-  Oswald_300Light,
-  Oswald_400Regular,
-  Oswald_500Medium,
-  Oswald_600SemiBold,
-  Oswald_700Bold,
-} from "@expo-google-fonts/oswald";
-import {
-  Roboto_100Thin,
-  Roboto_100Thin_Italic,
-  Roboto_300Light,
-  Roboto_300Light_Italic,
-  Roboto_400Regular,
-  Roboto_400Regular_Italic,
-  Roboto_500Medium,
-  Roboto_500Medium_Italic,
-  Roboto_700Bold_Italic,
-  Roboto_900Black,
-  useFonts,
-} from "@expo-google-fonts/roboto";
+import {useFonts, FONTS} from "../../share"
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
@@ -70,31 +50,15 @@ const HomeScreen = () => {
   const isFocused = useIsFocused();
   const [DataBook, setDataBook] = useState([]);
   const [keyword, setKeyword] = useState("");
-  let [fontsLoaded] = useFonts({
-    Roboto_100Thin,
-    Roboto_100Thin_Italic,
-    Roboto_300Light,
-    Roboto_300Light_Italic,
-    Roboto_400Regular,
-    Roboto_400Regular_Italic,
-    Roboto_500Medium,
-    Roboto_500Medium_Italic,
-    // Roboto_700Bold,
-    Roboto_700Bold_Italic,
-    Roboto_900Black,
-    // Roboto_900Black_Italic,
-    Oswald_200ExtraLight,
-    Oswald_300Light,
-    Oswald_400Regular,
-    Oswald_500Medium,
-    Oswald_600SemiBold,
-    Oswald_700Bold,
-  });
+  let [fontsLoaded] = useFonts(FONTS);
 
-  useEffect(async () => {
-    await getAllEbooks(keyword).then((res) => {
-      setDataBook(res.items);
-    });
+  useEffect(() => {
+    async function fetchBooks() {
+      await getAllEbooks(keyword).then((res) => {
+        setDataBook(res.items);
+      });
+    }
+    fetchBooks();
   }, [isFocused, keyword]);
 
   const _renderItem = ({ item, index }) => {
@@ -123,9 +87,9 @@ const HomeScreen = () => {
           uri:
             typeof item?.volumeInfo?.authors !== "undefined"
               ? item.volumeInfo?.imageLinks?.smallThumbnail?.replace(
-                  "zoom=1",
-                  "zoom=2"
-                )
+                "zoom=1",
+                "zoom=2"
+              )
               : "https://cogaidiem.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg",
         }}
       >
@@ -308,7 +272,7 @@ const HomeScreen = () => {
                       fontFamily: "Oswald_700Bold",
                     }}
                   >
-                    DashBoard
+                    My Book List
                   </Text>
                   <Image
                     style={{

@@ -1,24 +1,4 @@
-import {
-  Oswald_200ExtraLight,
-  Oswald_300Light,
-  Oswald_400Regular,
-  Oswald_500Medium,
-  Oswald_600SemiBold,
-  Oswald_700Bold,
-} from "@expo-google-fonts/oswald";
-import {
-  Roboto_100Thin,
-  Roboto_100Thin_Italic,
-  Roboto_300Light,
-  Roboto_300Light_Italic,
-  Roboto_400Regular,
-  Roboto_400Regular_Italic,
-  Roboto_500Medium,
-  Roboto_500Medium_Italic,
-  Roboto_700Bold_Italic,
-  Roboto_900Black,
-  useFonts,
-} from "@expo-google-fonts/roboto";
+import {useFonts, FONTS} from "../../share";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useIsFocused, useNavigation } from "@react-navigation/core";
 import React, { useState } from "react";
@@ -63,26 +43,7 @@ const BookDetail = ({ route }) => {
   const [review, setReview] = useState("");
   const [rating, setRating] = useState(0);
 
-  let [fontsLoaded] = useFonts({
-    Roboto_100Thin,
-    Roboto_100Thin_Italic,
-    Roboto_300Light,
-    Roboto_300Light_Italic,
-    Roboto_400Regular,
-    Roboto_400Regular_Italic,
-    Roboto_500Medium,
-    Roboto_500Medium_Italic,
-    // Roboto_700Bold,
-    Roboto_700Bold_Italic,
-    Roboto_900Black,
-    // Roboto_900Black_Italic,
-    Oswald_200ExtraLight,
-    Oswald_300Light,
-    Oswald_400Regular,
-    Oswald_500Medium,
-    Oswald_600SemiBold,
-    Oswald_700Bold,
-  });
+  let [fontsLoaded] = useFonts(FONTS);
   // console.log({ bookAll });
 
   const showFullSynopsis = () => {
