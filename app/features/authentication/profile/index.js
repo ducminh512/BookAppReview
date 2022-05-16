@@ -1,6 +1,6 @@
 import Icons from "@expo/vector-icons/Ionicons";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../../components/Button";
+import { sdk } from "../../../core";
 import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
 import { FONTS, useFonts } from "../../share";
@@ -19,10 +20,14 @@ const { width } = Dimensions.get("window");
 
 const ProfileScreen = () => {
   const inset = useSafeAreaInsets();
-  const [info, setInfo] = useState([]);
+  const [info, setInfo] = useState({});
   let [fontsLoaded] = useFonts(FONTS);
   const navigation = useNavigation();
   const isFocused = useIsFocused();
+
+  useEffect(()=> {
+    sdk.getCurrentUserInfo().then(user => setInfo(user))
+  }, [])
 
   const _renderItemBook = (item, index) => {
     return (
@@ -169,15 +174,11 @@ const ProfileScreen = () => {
                     fontFamily: "Oswald_700Bold",
                   }}
                 >
-                  Admin
+                  {info.name ?? ""}
                 </Text>
                 <View style={{ height: 5 }} />
                 <Text style={{ fontFamily: "Oswald_500Medium" }}>
-                  admin@gmail.com
-                </Text>
-                <View style={{ height: 5 }} />
-                <Text style={{ fontFamily: "Oswald_500Medium" }}>
-                  0356160325
+                  {info.email ?? ""}
                 </Text>
               </View>
               <TouchableOpacity
@@ -197,7 +198,7 @@ const ProfileScreen = () => {
                 }}
               />
               <Button
-                title={"LogOut"}
+                title={"Log Out"}
                 backgroundColor={theme.colors.orange}
                 onPress={() => { }}
               />

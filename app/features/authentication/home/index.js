@@ -1,11 +1,10 @@
-import { useFonts, FONTS } from "../../share"
+import { useFonts, FONTS, BASE_API_URL } from "../../share"
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   FlatList,
   Image,
-  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,38 +12,11 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Carousel from "react-native-snap-carousel";
-import TextInputForm from "../../../components/TextInputForm";
 import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
 import { api } from "../../../api";
 import { TopBar } from "./TopBar";
 import { RecommendBooks } from "./Recommend";
-export const API_BOOKS_KEY = "AIzaSyB-OtACxBjF7rAudHEmIH_vT_CAu2d6p5U";
-export const GOOGLE_BOOKS_URL = "https://www.googleapis.com/books";
-export const KEY_HEADER = " :keyes&key=" + API_BOOKS_KEY;
-export const ALL_EBOOKS_ENDPOInT = "/v1/volumes?q=";
-export const FREE_BOOKS_ENPOINT = "/v1/volumes?q=flowers&filter=free-ebooks";
-
-export async function getData(url, endpoint) {
-  try {
-    const fullURL = url + endpoint;
-    console.log(fullURL);
-    const response = await fetch(fullURL);
-    const responseJson = await response.json();
-    return responseJson;
-  } catch (error) {
-    return error.toString();
-  }
-}
-export const getAllEbooks = async (bookName) => {
-  const endpoint = ALL_EBOOKS_ENDPOInT + bookName + KEY_HEADER;
-  return await getData(GOOGLE_BOOKS_URL, endpoint);
-};
-export const getFreeEBooks = async () => {
-  const endpoint = FREE_BOOKS_ENPOINT + KEY_HEADER;
-  return await getData(GOOGLE_BOOKS_URL, endpoint);
-};
 
 const { width } = Dimensions.get("window");
 const HomeScreen = () => {
@@ -80,22 +52,16 @@ const HomeScreen = () => {
           flexDirection: "row",
         }}
       >
-        {item["cover_url"] && (
-          <Image
-            resizeMode="cover"
-            style={{
-              width: (width - 32) * 0.5,
-              height: 300,
-              borderTopLeftRadius: 8,
-              borderBottomLeftRadius: 8,
-            }}
-            source={{
-              uri:
-                item["cover_url"] ||
-                "https://cogaidiem.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg",
-            }}
-          />
-        )}
+        <Image
+          resizeMode="cover"
+          style={{
+            width: (width - 32) * 0.5,
+            height: 300,
+            borderTopLeftRadius: 8,
+            borderBottomLeftRadius: 8,
+          }}
+          source={{ uri: `${BASE_API_URL}/${item["cover_url"]}` }}
+        />
 
         <View style={{ width: (width - 32) * 0.5, paddingLeft: 10 }}>
           <Text
@@ -107,23 +73,18 @@ const HomeScreen = () => {
             }}
             numberOfLines={3}
           >
-            {item?.volumeInfo?.title}
+            {item?.title}
           </Text>
-          {typeof item?.author !== "undefined" &&
-            item?.categories.map((item, index) => {
-              return (
-                <Text
-                  style={{
-                    fontSize: 16,
-                    marginBottom: 10,
-                    fontFamily: "Oswald_500Medium",
-                  }}
-                  key={index}
-                >
-                  by {item}
-                </Text>
-              );
-            })}
+          <Text
+            style={{
+              fontSize: 16,
+              marginBottom: 10,
+              fontFamily: "Oswald_500Medium",
+            }}
+            key={index}
+          >
+            by {item?.author}
+          </Text>
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
@@ -134,7 +95,7 @@ const HomeScreen = () => {
                 fontFamily: "Oswald_300Light",
               }}
             >
-              Page: {item.page || 0}
+              Page: {item.pages || 0}
             </Text>
             <Text
               style={{
@@ -199,7 +160,7 @@ const HomeScreen = () => {
               >
                 New Books
               </Text>
-              <View style={{ height: 30 }} />
+              <View style={{ height: 10 }} />
             </View>
             <FlatList
               data={DataBook}

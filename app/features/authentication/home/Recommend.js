@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import Carousel from "react-native-snap-carousel";
 import { useEffect, useState } from "react";
-import { api } from "../../../api";
+import { api } from "../../../core/api";
 import { BASE_API_URL } from "../../share";
 
 const { width } = Dimensions.get("window");
@@ -35,10 +35,12 @@ export const RecommendBooks = () => {
 
 
   return (<>
-    <View style={{ height: 30 }} />
+    <View style={{ height: 10 }} />
     <Text style={styles.recommendBookTitle} >
       Recommend Books
     </Text>
+
+    <View style={{ height: 10 }} />
 
     <Carousel
       data={recommendBooks}

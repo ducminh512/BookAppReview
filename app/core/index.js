@@ -1,7 +1,7 @@
 import { api } from "./api";
 import { Storage, StorageKeys } from "./storage";
 
-const TOKEN_RENEW_TIME = 15 * 1000; // 15 second
+const TOKEN_RENEW_TIME = 200 * 1000;
 
 async function login(email, password) {
     console.debug("Login....");
@@ -44,7 +44,12 @@ async function _userId() {
     return await Storage.getData(StorageKeys.userId);
 }
 
+async function getCurrentUserInfo() {
+    return await Storage.getData(StorageKeys.userInfo);
+}
 
 export const sdk = {
-    login
+    login,
+    getCurrentUserInfo,
+
 }
