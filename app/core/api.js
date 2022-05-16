@@ -13,6 +13,7 @@ function postReq(uri) {
 
 async function getBooks(limit = 20, offset = 0, query = "") {
     const url = BASE_API_URL + "/books";
+    console.debug("sending GET request to " + url)
     return await axios.get(url, {
         params: {
             "page_size": limit,
@@ -20,6 +21,12 @@ async function getBooks(limit = 20, offset = 0, query = "") {
             "q": query,
         }
     }).then(res => res.data)
+}
+
+async function getBookDetail(id) {
+    const url = `${BASE_API_URL}/books/${id}`;
+    console.debug("sending GET request to " + url)
+    return await axios.get(url).then(res => res.data)
 }
 
 export const api = {
@@ -30,4 +37,5 @@ export const api = {
     bookmarkBook: postReq("/bookmarks"),
     rateBook: postReq("/rates"),
     comment: postReq("/comments"),
+    getBookDetail,
 }

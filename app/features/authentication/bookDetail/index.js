@@ -1,7 +1,7 @@
-import {useFonts, FONTS} from "../../share";
+import { useFonts, FONTS, BASE_API_URL } from "../../share";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useIsFocused, useNavigation } from "@react-navigation/core";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -18,6 +18,8 @@ import Button from "../../../components/Button";
 import Header from "../../../components/Header";
 import TextInputForm from "../../../components/TextInputForm";
 import { theme } from "../../../theme";
+import { sdk } from "../../../core";
+import { api } from "../../../core/api";
 let bookOptions = [
   "Want to Read",
   "Start Reading",
@@ -36,8 +38,8 @@ const BookDetail = ({ route }) => {
   const [openSheet, setOpenSheet] = useState(false);
 
   const isFocused = useIsFocused();
-  const { item: bookDetail } = route.params || {};
-  const [infoBook, setInfoBook] = useState({});
+  const { item } = route.params || {};
+  const [infoBook, setInfoBook] = useState(item);
   // const [reviewList, setReviewList] = useState([]);
 
   const [review, setReview] = useState("");
@@ -46,6 +48,10 @@ const BookDetail = ({ route }) => {
   let [fontsLoaded] = useFonts(FONTS);
   // console.log({ bookAll });
 
+  useEffect(() => {
+    api.getBookDetail(item.id).then(book => setInfoBook(book))
+  }, []);
+
   const showFullSynopsis = () => {
     setShowSynopsis((value) => !value);
     // console.log('message: ', bookMark)
@@ -53,7 +59,7 @@ const BookDetail = ({ route }) => {
 
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>
-      <Header title="Book Details" />
+      <Header title="Book detail" />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View
           style={{
@@ -76,13 +82,13 @@ const BookDetail = ({ route }) => {
                 <Image
                   style={styles.tinyLogo}
                   source={{
-                    uri: "https://cogaidiem.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg",
+                    uri: `${BASE_API_URL}/covers/${infoBook["cover_url"]}`,
                   }}
                 />
               </View>
               <View style={styles.titleInfo}>
-                <Text style={styles.title}>Title</Text>
-                <Text style={styles.author}>by authors</Text>
+                <Text style={styles.title}>{infoBook.title}</Text>
+                <Text style={styles.author}>by {infoBook.author}</Text>
                 <Text style={{ marginVertical: 10 }}>categories</Text>
                 <View style={styles.rating}>
                   <Rating
@@ -93,7 +99,11 @@ const BookDetail = ({ route }) => {
                     style={{ paddingVertical: 10 }}
                   />
                   <Text style={styles.ratingNumber}>
-                    {0} ({0} ratings)
+                    {
+                      infoBook.rate_count == 0 
+                      ? 2.5 
+                      : infoBook.rate_sum / infoBook.rate_count
+                    } ({infoBook.rate_count} ratings)
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -124,7 +134,7 @@ const BookDetail = ({ route }) => {
               )}
               {showSynopsis && (
                 <Text style={{ fontFamily: "Roboto_400Regular_Italic" }}>
-                  abc
+                  {infoBook.description}
                   <TouchableOpacity onPress={() => showFullSynopsis()}>
                     <Text style={styles.showMore}>Show less</Text>
                   </TouchableOpacity>
@@ -133,10 +143,10 @@ const BookDetail = ({ route }) => {
             </View>
             <View style={styles.bottomContent}>
               <Text style={{ fontFamily: "Oswald_500Medium" }}>
-                <Text style={styles.bottom}>Published:</Text> {0}
+                <Text style={styles.bottom}>Published: </Text> {infoBook.publisher}
               </Text>
               <Text style={{ fontFamily: "Oswald_500Medium" }}>
-                <Text style={styles.bottom}>Pages:</Text> {0}
+                <Text style={styles.bottom}>Pages:</Text> {infoBook.pages}
               </Text>
             </View>
             <View style={{ height: 10 }} />
@@ -193,7 +203,7 @@ const BookDetail = ({ route }) => {
                       size={24}
                       color={"red"}
                       style={{ position: "absolute", right: 10, top: 5 }}
-                      onPress={() => {}}
+                      onPress={() => { }}
                     />
                   </View>
                 );
@@ -232,7 +242,7 @@ const BookDetail = ({ route }) => {
             />
             <Button
               title={"Submit"}
-              onPress={() => {}}
+              onPress={() => { }}
               backgroundColor={theme.colors.blue}
             />
             <BottomSheet modalProps={{}} isVisible={openSheet}>
