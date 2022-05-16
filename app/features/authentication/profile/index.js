@@ -1,24 +1,3 @@
-import {
-  Oswald_200ExtraLight,
-  Oswald_300Light,
-  Oswald_400Regular,
-  Oswald_500Medium,
-  Oswald_600SemiBold,
-  Oswald_700Bold,
-} from "@expo-google-fonts/oswald";
-import {
-  Roboto_100Thin,
-  Roboto_100Thin_Italic,
-  Roboto_300Light,
-  Roboto_300Light_Italic,
-  Roboto_400Regular,
-  Roboto_400Regular_Italic,
-  Roboto_500Medium,
-  Roboto_500Medium_Italic,
-  Roboto_700Bold_Italic,
-  Roboto_900Black,
-  useFonts,
-} from "@expo-google-fonts/roboto";
 import Icons from "@expo/vector-icons/Ionicons";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
@@ -35,31 +14,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../../components/Button";
 import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
+import { FONTS, useFonts } from "../../share";
 const { width } = Dimensions.get("window");
 
 const ProfileScreen = () => {
   const inset = useSafeAreaInsets();
   const [info, setInfo] = useState([]);
-  let [fontsLoaded] = useFonts({
-    Roboto_100Thin,
-    Roboto_100Thin_Italic,
-    Roboto_300Light,
-    Roboto_300Light_Italic,
-    Roboto_400Regular,
-    Roboto_400Regular_Italic,
-    Roboto_500Medium,
-    Roboto_500Medium_Italic,
-    // Roboto_700Bold,
-    Roboto_700Bold_Italic,
-    Roboto_900Black,
-    // Roboto_900Black_Italic,
-    Oswald_200ExtraLight,
-    Oswald_300Light,
-    Oswald_400Regular,
-    Oswald_500Medium,
-    Oswald_600SemiBold,
-    Oswald_700Bold,
-  });
+  let [fontsLoaded] = useFonts(FONTS);
   const navigation = useNavigation();
   const isFocused = useIsFocused();
 
@@ -238,7 +199,7 @@ const ProfileScreen = () => {
               <Button
                 title={"LogOut"}
                 backgroundColor={theme.colors.orange}
-                onPress={() => {}}
+                onPress={() => { }}
               />
               <Text style={{ fontFamily: "Oswald_700Bold", fontSize: 20 }}>
                 List Review

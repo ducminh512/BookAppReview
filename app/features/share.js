@@ -44,7 +44,10 @@ const FONTS = {
   Oswald_700Bold,
 }
 
+const BASE_API_URL = "https://api.mybooklist.ndtai.me"
+
 export {
   useFonts,
   FONTS,
+  BASE_API_URL,
 };

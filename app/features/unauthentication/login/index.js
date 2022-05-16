@@ -3,14 +3,17 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Image, Keyboard, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Keyboard, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../../components/Button";
 import FormContainer from "../../../components/FormContainer";
 import TextInputForm from "../../../components/TextInputForm";
+import { sdk } from "../../../core";
 import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
 import { loginSchema } from "./loginValidation";
+
+const DefaultLoginValue = { email: "user@gmail.com", password: "password" }
 
 const LoginScreen = () => {
   const inset = useSafeAreaInsets();
@@ -21,16 +24,24 @@ const LoginScreen = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: DefaultLoginValue,
     mode: "onChange",
     resolver: yupResolver(loginSchema),
   });
+
   const onSubmit = handleSubmit(({ email, password }) => {
+    setIsLoadingLogin(true);
     Keyboard.dismiss();
-    navigation.navigate(routesName.BOTTOM_BAR);
+
+    sdk.login(email, password)
+      .then(() => navigation.navigate(routesName.BOTTOM_BAR))
+      .catch((err) => {
+        Alert.alert(
+          "Login failed!",
+          err.response.data.message,
+        )
+      })
+      .finally(setIsLoadingLogin(false));
   });
 
   return (
