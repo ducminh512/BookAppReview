@@ -25,7 +25,7 @@ const ProfileScreen = () => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
 
-  useEffect(()=> {
+  useEffect(() => {
     sdk.getCurrentUserInfo().then(user => setInfo(user))
   }, [])
 
@@ -156,9 +156,7 @@ const ProfileScreen = () => {
                   height: 90,
                   borderRadius: 90 / 2,
                 }}
-                source={{
-                  uri: "https://freesvg.org/img/myAvatar.png",
-                }}
+                source={{ uri: info["avatar_url"], }}
               />
               <View
                 style={{
@@ -189,7 +187,7 @@ const ProfileScreen = () => {
                 <Icons name="create-outline" size={24} />
               </TouchableOpacity>
             </View>
-            <View style={{ marginHorizontal: 20 }}>
+            <View style={{ marginHorizontal: 20, marginTop: 25 }}>
               <Button
                 title={"Change Password"}
                 backgroundColor={theme.colors.orange}
@@ -203,7 +201,7 @@ const ProfileScreen = () => {
                 onPress={() => { }}
               />
               <Text style={{ fontFamily: "Oswald_700Bold", fontSize: 20 }}>
-                List Review
+                My Reviews
               </Text>
               {<View>{[1, 2, 3, 4, 5, 6].map(_renderItemBook)}</View>}
             </View>

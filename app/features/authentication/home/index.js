@@ -1,153 +1,48 @@
-import { useFonts, FONTS, BASE_API_URL } from "../../share"
+import { useFonts, FONTS } from "../../share"
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
   FlatList,
-  Image,
-  ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
+
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
-import { api } from "../../../api";
+import { sdk } from "../../../core";
 import { TopBar } from "./TopBar";
 import { RecommendBooks } from "./Recommend";
+import { renderBookItem } from "./BookItem";
 
-const { width } = Dimensions.get("window");
+const PAGE_SIZE = 20;
+
 const HomeScreen = () => {
   const inset = useSafeAreaInsets();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
-  const [DataBook, setDataBook] = useState([]);
+  const [books, setBooks] = useState([]);
   const [keyword, setKeyword] = useState("");
   let [fontsLoaded] = useFonts(FONTS);
 
   useEffect(() => {
-    api.getBooks().then(({ data }) => { console.log(data); setDataBook(data) })
+    sdk.getBooks().then(({ data }) => {
+      console.debug(data[0]);
+      setBooks(data);
+    })
   }, [isFocused, keyword]);
 
-  const _renderItemBook = ({ item, index }) => {
-    return (
-      <View
-        style={{
-          width: width - 32,
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          marginVertical: 10,
-          borderRadius: 8,
-          elevation: 5,
-          // paddingBottom:10,
-          marginHorizontal: 16,
-          backgroundColor: "white",
-          flexDirection: "row",
-        }}
-      >
-        <Image
-          resizeMode="cover"
-          style={{
-            width: (width - 32) * 0.5,
-            height: 300,
-            borderTopLeftRadius: 8,
-            borderBottomLeftRadius: 8,
-          }}
-          source={{ uri: `${BASE_API_URL}/${item["cover_url"]}` }}
-        />
-
-        <View style={{ width: (width - 32) * 0.5, paddingLeft: 10 }}>
-          <Text
-            style={{
-              fontSize: 19,
-              marginBottom: 10,
-              fontWeight: "bold",
-              fontFamily: "Oswald_700Bold",
-            }}
-            numberOfLines={3}
-          >
-            {item?.title}
-          </Text>
-          <Text
-            style={{
-              fontSize: 16,
-              marginBottom: 10,
-              fontFamily: "Oswald_500Medium",
-            }}
-            key={index}
-          >
-            by {item?.author}
-          </Text>
-          <View
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
-          >
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "600",
-                fontFamily: "Oswald_300Light",
-              }}
-            >
-              Page: {item.pages || 0}
-            </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "600",
-                marginRight: 5,
-                fontFamily: "Oswald_300Light",
-              }}
-            >
-              Rating: {item["avg_rate"] || 0}
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate(routesName.BOOK_DETAIL_SCREEN, { item });
-            }}
-            style={{
-              marginTop: 20,
-              width: 100,
-              height: 45,
-              borderColor: "red",
-              borderRadius: 100 / 2,
-              borderWidth: 1,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 18,
-                fontWeight: "600",
-                fontFamily: "Oswald_500Medium",
-              }}
-            >
-              Detail
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
+  const loadMoreBooks = async () => {
+    console.log("load more books....");
+    sdk.getBooks(PAGE_SIZE, books.length).then(({ data }) => setBooks([...books, ...data]))
+  }
 
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>
       <TopBar keyword={keyword} handleKeyWord={setKeyword} />
-      <ScrollView
-        style={{ flex: 1, }}
-        showsVerticalScrollIndicator={false}
-      >
-        {fontsLoaded && (
-          <>
+      {fontsLoaded && (
+        <FlatList
+          ListHeaderComponent={() => (
             <View style={{ paddingHorizontal: 16 }}>
               <RecommendBooks />
 
@@ -162,40 +57,38 @@ const HomeScreen = () => {
               </Text>
               <View style={{ height: 10 }} />
             </View>
-            <FlatList
-              data={DataBook}
-              renderItem={_renderItemBook}
-              keyExtractor={(item, index) => item.id.toString()}
-              contentContainerStyle={{ flex: 1 }}
-              showsHorizontalScrollIndicator={false}
-              ItemSeparatorComponent={() => {
-                return <View style={{ width: 10 }} />;
-              }}
-              ListEmptyComponent={() => {
-                return (
-                  <View
-                    style={{
-                      height: "100%",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text
-                      style={{ fontSize: 30, fontFamily: "Oswald_700Bold" }}
-                    >
-                      No Data
-                    </Text>
-                  </View>
-                );
-              }}
-            />
-          </>
-        )}
-      </ScrollView>
-      <View style={{ height: inset.bottom + 100 }} />
+          )}
+          data={books}
+          renderItem={renderBookItem(navigation)}
+          keyExtractor={(item, index) => `book-${item.id}`}
+          showsHorizontalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+          ListEmptyComponent={ListEmpty}
+          onEndReachedThreshold={0.7}
+          onEndReached={loadMoreBooks}
+          ListFooterComponent={() => (
+            <View style={{ height: inset.bottom + 100 }} />
+          )}
+        />
+      )}
     </View>
   );
 };
+
+const ListEmpty = () => (<View
+  style={{
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+>
+  <Text
+    style={{ fontSize: 30, fontFamily: "Oswald_700Bold" }}
+  >
+    No Data
+  </Text>
+</View>
+)
 
 
 const styles = StyleSheet.create({

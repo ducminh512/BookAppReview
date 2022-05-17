@@ -16,7 +16,9 @@ export const RecommendBooks = () => {
   const [recommendBooks, setRecommendBooks] = useState([]);
 
   useEffect(() => {
-    api.getBooks(5, 20).then(({ data }) => { setRecommendBooks(data); })
+    let isMounted = true;
+    api.getBooks(5, 20).then(({ data }) => { if (isMounted) setRecommendBooks(data); })
+    return () => { isMounted = false }
   }, [])
 
   const _renderItem = ({ item, index }) => {

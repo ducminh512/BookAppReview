@@ -7,6 +7,7 @@ function postReq(uri) {
     const url = BASE_API_URL + uri;
     return async function (data) {
         console.debug("sending POST request to " + url)
+        console.debug("with data: " + data)
         return await axios.post(url, qs.stringify(data)).then(res => res.data)
     }
 }

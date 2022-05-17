@@ -4,7 +4,11 @@ import { LogBox, StyleSheet } from "react-native";
 import { FONTS, useFonts } from "./app/features/share";
 import RootStack from "./app/navigation/rootStack";
 
-LogBox.ignoreAllLogs();
+LogBox.ignoreLogs(
+  [
+    "ViewPropTypes will be removed",
+  ]
+);
 const App = () => {
   let [fontsLoaded] = useFonts(FONTS);
   return (
