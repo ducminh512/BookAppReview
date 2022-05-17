@@ -9,11 +9,14 @@ import Carousel from "react-native-snap-carousel";
 import { useEffect, useState } from "react";
 import { api } from "../../../core/api";
 import { BASE_API_URL } from "../../share";
+import { renderBookItem } from "./BookItem";
+import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
 export const RecommendBooks = () => {
-  const [recommendBooks, setRecommendBooks] = useState([]);
+  const [recommendBooks, setRecommendBooks] = useState([{}]);
+  const navigation = useNavigation();
 
   useEffect(() => {
     let isMounted = true;
@@ -46,7 +49,7 @@ export const RecommendBooks = () => {
 
     <Carousel
       data={recommendBooks}
-      renderItem={_renderItem}
+      renderItem={renderBookItem(navigation)}
       sliderWidth={width - 32}
       itemWidth={width - 32}
       loop

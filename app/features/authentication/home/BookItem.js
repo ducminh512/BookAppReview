@@ -10,7 +10,6 @@ import {
 } from "react-native";
 
 import { routesName } from "../../../navigation/routes";
-import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
@@ -63,7 +62,7 @@ export const renderBookItem = (navigation) => ({ item, index }) => (
             fontFamily: "Oswald_300Light",
           }}
         >
-          Rating: {item["avg_rate"] || 0}
+          Rating: {item["avg_rate"] || "-" }
         </Text>
       </View>
 
@@ -116,7 +115,7 @@ const style = StyleSheet.create({
   },
   coverImg: {
     width: (width - 32) * 0.5,
-    height: 300,
+    height: 240,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
   }
