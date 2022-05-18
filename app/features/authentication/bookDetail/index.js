@@ -60,7 +60,7 @@ const BookDetail = ({ route }) => {
   );
 };
 
-const renderComment = ({ item }) => (
+export const renderComment = ({ item }) => (
   <View
     style={{
       marginHorizontal: 16,

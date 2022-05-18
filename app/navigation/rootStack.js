@@ -9,7 +9,7 @@ import { sdk } from "../core";
 const Stack = createStackNavigator();
 
 const RootStack = () => {
-  const [initialRoute, setInitialRoute] = useState(routesName.HOME_SCREEN);
+  const [initialRoute, setInitialRoute] = useState(routesName.LOGIN_SCREEN);
 
   useEffect(() => {
     sdk.renewAccessToken()

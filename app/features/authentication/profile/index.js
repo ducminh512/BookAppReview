@@ -16,134 +16,22 @@ import { sdk } from "../../../core";
 import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
 import { FONTS, useFonts } from "../../share";
+import { renderComment } from "../bookDetail";
 const { width } = Dimensions.get("window");
 
 const ProfileScreen = () => {
   const inset = useSafeAreaInsets();
   const [info, setInfo] = useState({});
+  const [comments, setComments] = useState([]);
+
   let [fontsLoaded] = useFonts(FONTS);
   const navigation = useNavigation();
-  const isFocused = useIsFocused();
 
   useEffect(() => {
     sdk.getCurrentUserInfo().then(user => setInfo(user))
+    sdk.getUserComments().then(({data}) => setComments(data))
   }, [])
 
-  const _renderItemBook = (item, index) => {
-    return (
-      <View
-        style={{
-          width: "100%",
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          marginVertical: 10,
-          borderRadius: 8,
-          elevation: 5,
-          paddingBottom: 10,
-
-          backgroundColor: "white",
-          flexDirection: "row",
-        }}
-      >
-        <Image
-          resizeMode="cover"
-          style={{
-            width: (width - 32) * 0.5,
-            height: 150,
-            borderTopLeftRadius: 8,
-            borderBottomLeftRadius: 8,
-          }}
-          source={{
-            uri: "https://cogaidiem.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg",
-          }}
-        />
-
-        <View style={{ width: (width - 32) * 0.5, paddingLeft: 4 }}>
-          <Text
-            style={{
-              fontSize: 19,
-              marginBottom: 10,
-              fontWeight: "bold",
-              fontFamily: "Oswald_700Bold",
-              maxWidth: (width - 32) * 0.45,
-            }}
-            numberOfLines={3}
-          >
-            {item?.volumeInfo?.title}
-          </Text>
-          <Text
-            style={{
-              fontSize: 16,
-              marginBottom: 10,
-              fontFamily: "Oswald_500Medium",
-            }}
-            key={index}
-          >
-            by admin
-          </Text>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              flex: 1,
-              width: (width - 32) * 0.4,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "600",
-                fontFamily: "Oswald_300Light",
-              }}
-            >
-              Page: {0}
-            </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "600",
-                // marginRight: 5,
-                fontFamily: "Oswald_300Light",
-              }}
-            >
-              Rating: {0}
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate(routesName.BOOK_DETAIL_SCREEN, { item });
-            }}
-            style={{
-              marginTop: 10,
-              width: 100,
-              height: 45,
-              borderColor: "red",
-              borderRadius: 50 / 2,
-              borderWidth: 1,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 18,
-                fontWeight: "600",
-                fontFamily: "Oswald_500Medium",
-              }}
-            >
-              Detail
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>
       <ScrollView>
@@ -196,14 +84,17 @@ const ProfileScreen = () => {
                 }}
               />
               <Button
-                title={"Log Out"}
+                title={"LogOut"}
                 backgroundColor={theme.colors.orange}
-                onPress={() => { }}
+                onPress={() => {
+                  sdk.logout()
+                  navigation.navigate(routesName.LOGIN_SCREEN)
+                }}
               />
               <Text style={{ fontFamily: "Oswald_700Bold", fontSize: 20 }}>
                 My Reviews
               </Text>
-              {<View>{[1, 2, 3, 4, 5, 6].map(_renderItemBook)}</View>}
+              {<View>{comments.map(renderComment)}</View>}
             </View>
           </>
         )}

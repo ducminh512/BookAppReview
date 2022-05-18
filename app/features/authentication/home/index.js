@@ -31,11 +31,18 @@ const HomeScreen = () => {
       console.debug(data[0]);
       setBooks(data);
     })
-  }, [isFocused, keyword]);
+  }, []);
+
+  useEffect(() => {
+    sdk.getBooks(10, 0, keyword).then(({ data }) => {
+      setBooks(data);
+    })
+  }, [keyword]);
+
 
   const loadMoreBooks = async () => {
     console.log("load more books....");
-    sdk.getBooks(PAGE_SIZE, books.length).then(({ data }) => setBooks([...books, ...data]))
+    sdk.getBooks(PAGE_SIZE, books.length, keyword).then(({ data }) => setBooks([...books, ...data]))
   }
 
   return (
@@ -45,18 +52,20 @@ const HomeScreen = () => {
         <FlatList
           ListHeaderComponent={() => (
             <View style={{ paddingHorizontal: 16 }}>
-              <RecommendBooks />
+              {keyword === "" ? <>
+                <RecommendBooks />
+                <Text
+                  style={{
+                    fontSize: 20,
+                    fontWeight: "bold",
+                    fontFamily: "Oswald_700Bold",
+                  }}
+                >
+                  New Books
+                </Text>
+                <View style={{ height: 10 }} />
+              </> : null}
 
-              <Text
-                style={{
-                  fontSize: 20,
-                  fontWeight: "bold",
-                  fontFamily: "Oswald_700Bold",
-                }}
-              >
-                New Books
-              </Text>
-              <View style={{ height: 10 }} />
             </View>
           )}
           data={books}
