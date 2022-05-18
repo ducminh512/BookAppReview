@@ -1,27 +1,6 @@
-import {
-  Oswald_200ExtraLight,
-  Oswald_300Light,
-  Oswald_400Regular,
-  Oswald_500Medium,
-  Oswald_600SemiBold,
-  Oswald_700Bold,
-} from "@expo-google-fonts/oswald";
-import {
-  Roboto_100Thin,
-  Roboto_100Thin_Italic,
-  Roboto_300Light,
-  Roboto_300Light_Italic,
-  Roboto_400Regular,
-  Roboto_400Regular_Italic,
-  Roboto_500Medium,
-  Roboto_500Medium_Italic,
-  Roboto_700Bold_Italic,
-  Roboto_900Black,
-  useFonts,
-} from "@expo-google-fonts/roboto";
 import Icons from "@expo/vector-icons/Ionicons";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -33,35 +12,22 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../../components/Button";
+import { sdk } from "../../../core";
 import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
+import { FONTS, useFonts } from "../../share";
 const { width } = Dimensions.get("window");
 
 const ProfileScreen = () => {
   const inset = useSafeAreaInsets();
-  const [info, setInfo] = useState([]);
-  let [fontsLoaded] = useFonts({
-    Roboto_100Thin,
-    Roboto_100Thin_Italic,
-    Roboto_300Light,
-    Roboto_300Light_Italic,
-    Roboto_400Regular,
-    Roboto_400Regular_Italic,
-    Roboto_500Medium,
-    Roboto_500Medium_Italic,
-    // Roboto_700Bold,
-    Roboto_700Bold_Italic,
-    Roboto_900Black,
-    // Roboto_900Black_Italic,
-    Oswald_200ExtraLight,
-    Oswald_300Light,
-    Oswald_400Regular,
-    Oswald_500Medium,
-    Oswald_600SemiBold,
-    Oswald_700Bold,
-  });
+  const [info, setInfo] = useState({});
+  let [fontsLoaded] = useFonts(FONTS);
   const navigation = useNavigation();
   const isFocused = useIsFocused();
+
+  useEffect(() => {
+    sdk.getCurrentUserInfo().then(user => setInfo(user))
+  }, [])
 
   const _renderItemBook = (item, index) => {
     return (
@@ -190,9 +156,7 @@ const ProfileScreen = () => {
                   height: 90,
                   borderRadius: 90 / 2,
                 }}
-                source={{
-                  uri: "https://freesvg.org/img/myAvatar.png",
-                }}
+                source={{ uri: info["avatar_url"], }}
               />
               <View
                 style={{
@@ -208,15 +172,11 @@ const ProfileScreen = () => {
                     fontFamily: "Oswald_700Bold",
                   }}
                 >
-                  Admin
+                  {info.name ?? ""}
                 </Text>
                 <View style={{ height: 5 }} />
                 <Text style={{ fontFamily: "Oswald_500Medium" }}>
-                  admin@gmail.com
-                </Text>
-                <View style={{ height: 5 }} />
-                <Text style={{ fontFamily: "Oswald_500Medium" }}>
-                  0356160325
+                  {info.email ?? ""}
                 </Text>
               </View>
               <TouchableOpacity
@@ -227,7 +187,7 @@ const ProfileScreen = () => {
                 <Icons name="create-outline" size={24} />
               </TouchableOpacity>
             </View>
-            <View style={{ marginHorizontal: 20 }}>
+            <View style={{ marginHorizontal: 20, marginTop: 25 }}>
               <Button
                 title={"Change Password"}
                 backgroundColor={theme.colors.orange}
@@ -236,12 +196,12 @@ const ProfileScreen = () => {
                 }}
               />
               <Button
-                title={"LogOut"}
+                title={"Log Out"}
                 backgroundColor={theme.colors.orange}
-                onPress={() => {}}
+                onPress={() => { }}
               />
               <Text style={{ fontFamily: "Oswald_700Bold", fontSize: 20 }}>
-                List Review
+                My Reviews
               </Text>
               {<View>{[1, 2, 3, 4, 5, 6].map(_renderItemBook)}</View>}
             </View>

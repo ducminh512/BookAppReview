@@ -1,4 +1,3 @@
-import { View, Text } from "react-native";
 import React, { useEffect, useState } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { routesName } from "./routes";
@@ -6,16 +5,24 @@ import { unAuthentication } from "../features/unauthentication";
 import { NavigationContainer } from "@react-navigation/native";
 import BottomTabBars from "./bottomNavigation";
 import { bottom } from "../features/authentication";
+import { sdk } from "../core";
 const Stack = createStackNavigator();
 
 const RootStack = () => {
+  const [initialRoute, setInitialRoute] = useState(routesName.HOME_SCREEN);
+
+  useEffect(() => {
+    sdk.renewAccessToken()
+      .catch(_ => setInitialRoute(routesName.LOGIN_SCREEN))
+  }, [])
+
   return (
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
         }}
-        initialRouteName={routesName.LOGIN_SCREEN}
+        initialRouteName={initialRoute}
       >
         <Stack.Screen name={routesName.BOTTOM_BAR} component={BottomTabBars} />
 

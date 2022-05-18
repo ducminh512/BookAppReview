@@ -1,405 +1,96 @@
-import {
-  Oswald_200ExtraLight,
-  Oswald_300Light,
-  Oswald_400Regular,
-  Oswald_500Medium,
-  Oswald_600SemiBold,
-  Oswald_700Bold,
-} from "@expo-google-fonts/oswald";
-import {
-  Roboto_100Thin,
-  Roboto_100Thin_Italic,
-  Roboto_300Light,
-  Roboto_300Light_Italic,
-  Roboto_400Regular,
-  Roboto_400Regular_Italic,
-  Roboto_500Medium,
-  Roboto_500Medium_Italic,
-  Roboto_700Bold_Italic,
-  Roboto_900Black,
-  useFonts,
-} from "@expo-google-fonts/roboto";
+import { useFonts, FONTS } from "../../share"
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
   FlatList,
-  Image,
-  ImageBackground,
-  ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
+
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Carousel from "react-native-snap-carousel";
-import TextInputForm from "../../../components/TextInputForm";
-import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
-export const API_BOOKS_KEY = "AIzaSyB-OtACxBjF7rAudHEmIH_vT_CAu2d6p5U";
-export const GOOGLE_BOOKS_URL = "https://www.googleapis.com/books";
-export const KEY_HEADER = " :keyes&key=" + API_BOOKS_KEY;
-export const ALL_EBOOKS_ENDPOInT = "/v1/volumes?q=";
-export const FREE_BOOKS_ENPOINT = "/v1/volumes?q=flowers&filter=free-ebooks";
+import { sdk } from "../../../core";
+import { TopBar } from "./TopBar";
+import { RecommendBooks } from "./Recommend";
+import { renderBookItem } from "./BookItem";
+import { SAMPLE_BOOKS } from "../../../core/const";
 
-export async function getData(url, endpoint) {
-  try {
-    const fullURL = url + endpoint;
-    console.log(fullURL);
-    const response = await fetch(fullURL);
-    const responseJson = await response.json();
-    return responseJson;
-  } catch (error) {
-    return error.toString();
-  }
-}
-export const getAllEbooks = async (bookName) => {
-  const endpoint = ALL_EBOOKS_ENDPOInT + bookName + KEY_HEADER;
-  return await getData(GOOGLE_BOOKS_URL, endpoint);
-};
-export const getFreeEBooks = async () => {
-  const endpoint = FREE_BOOKS_ENPOINT + KEY_HEADER;
-  return await getData(GOOGLE_BOOKS_URL, endpoint);
-};
+const PAGE_SIZE = 20;
 
-const { width } = Dimensions.get("window");
 const HomeScreen = () => {
   const inset = useSafeAreaInsets();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
-  const [DataBook, setDataBook] = useState([]);
+  const [books, setBooks] = useState(SAMPLE_BOOKS);
   const [keyword, setKeyword] = useState("");
-  let [fontsLoaded] = useFonts({
-    Roboto_100Thin,
-    Roboto_100Thin_Italic,
-    Roboto_300Light,
-    Roboto_300Light_Italic,
-    Roboto_400Regular,
-    Roboto_400Regular_Italic,
-    Roboto_500Medium,
-    Roboto_500Medium_Italic,
-    // Roboto_700Bold,
-    Roboto_700Bold_Italic,
-    Roboto_900Black,
-    // Roboto_900Black_Italic,
-    Oswald_200ExtraLight,
-    Oswald_300Light,
-    Oswald_400Regular,
-    Oswald_500Medium,
-    Oswald_600SemiBold,
-    Oswald_700Bold,
-  });
+  let [fontsLoaded] = useFonts(FONTS);
 
-  useEffect(async () => {
-    await getAllEbooks(keyword).then((res) => {
-      setDataBook(res.items);
-    });
+  useEffect(() => {
+    sdk.getBooks().then(({ data }) => {
+      console.debug(data[0]);
+      setBooks(data);
+    })
   }, [isFocused, keyword]);
 
-  const _renderItem = ({ item, index }) => {
-    return (
-      <ImageBackground
-        imageStyle={{
-          borderRadius: 5,
-          height: 200,
-          width: width - 32,
-        }}
-        style={{
-          height: 200,
-          width: width - 32,
-          elevation: 8,
-          backgroundColor: "white",
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-        }}
-        resizeMode="contain"
-        source={{
-          uri:
-            typeof item?.volumeInfo?.authors !== "undefined"
-              ? item.volumeInfo?.imageLinks?.smallThumbnail?.replace(
-                  "zoom=1",
-                  "zoom=2"
-                )
-              : "https://cogaidiem.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg",
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 20,
-            position: "absolute",
-            bottom: 50,
-            left: 10,
-            color: "black",
-            fontFamily: "Oswald_500Medium",
-          }}
-        >
-          {item?.volumeInfo?.title}
-        </Text>
-        {item?.volumeInfo?.authors ? (
-          <Text
-            style={{
-              fontSize: 16,
-              position: "absolute",
-              bottom: 20,
-              left: 10,
-              color: "black",
-              fontFamily: "Oswald_300Light",
-            }}
-          >
-            by {item?.volumeInfo?.authors}
-          </Text>
-        ) : null}
-      </ImageBackground>
-    );
-  };
-  const _renderItemBook = ({ item, index }) => {
-    return (
-      <View
-        style={{
-          width: width - 32,
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          marginVertical: 10,
-          borderRadius: 8,
-          elevation: 5,
-          // paddingBottom:10,
-          marginHorizontal: 16,
-          backgroundColor: "white",
-          flexDirection: "row",
-        }}
-      >
-        {item.volumeInfo?.imageLinks?.thumbnail && (
-          <Image
-            resizeMode="cover"
-            style={{
-              width: (width - 32) * 0.5,
-              height: 300,
-              borderTopLeftRadius: 8,
-              borderBottomLeftRadius: 8,
-            }}
-            source={{
-              uri:
-                item.volumeInfo?.imageLinks?.thumbnail.replace(
-                  "zoom=1",
-                  "zoom=1"
-                ) ||
-                "https://cogaidiem.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg",
-            }}
-          />
-        )}
+  const loadMoreBooks = async () => {
+    console.log("load more books....");
+    sdk.getBooks(PAGE_SIZE, books.length).then(({ data }) => setBooks([...books, ...data]))
+  }
 
-        <View style={{ width: (width - 32) * 0.5, paddingLeft: 10 }}>
-          <Text
-            style={{
-              fontSize: 19,
-              marginBottom: 10,
-              fontWeight: "bold",
-              fontFamily: "Oswald_700Bold",
-            }}
-            numberOfLines={3}
-          >
-            {item?.volumeInfo?.title}
-          </Text>
-          {typeof item?.volumeInfo?.authors !== "undefined" &&
-            item?.volumeInfo?.authors.map((item, index) => {
-              return (
-                <Text
-                  style={{
-                    fontSize: 16,
-                    marginBottom: 10,
-                    fontFamily: "Oswald_500Medium",
-                  }}
-                  key={index}
-                >
-                  by {item}
-                </Text>
-              );
-            })}
-          <View
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
-          >
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "600",
-                fontFamily: "Oswald_300Light",
-              }}
-            >
-              Page: {item.volumeInfo.pageCount || 0}
-            </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "600",
-                marginRight: 5,
-                fontFamily: "Oswald_300Light",
-              }}
-            >
-              Rating: {item.volumeInfo.averageRating || 0}
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate(routesName.BOOK_DETAIL_SCREEN, { item });
-            }}
-            style={{
-              marginTop: 20,
-              width: 100,
-              height: 45,
-              borderColor: "red",
-              borderRadius: 100 / 2,
-              borderWidth: 1,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 18,
-                fontWeight: "600",
-                fontFamily: "Oswald_500Medium",
-              }}
-            >
-              Detail
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
-
-  const handleKeyword = React.useCallback((text) => {
-    setKeyword(text);
-  }, []);
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>
-      <ScrollView
-        style={{
-          flex: 1,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        <>
-          {fontsLoaded && (
-            <>
-              <View style={{ paddingHorizontal: 16 }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 20,
-                      fontWeight: "bold",
-                      fontFamily: "Oswald_700Bold",
-                    }}
-                  >
-                    DashBoard
-                  </Text>
-                  <Image
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderColor: "red",
-                      borderRadius: 20,
-                      borderWidth: 0.5,
-                    }}
-                    source={{
-                      uri: "https://cogaidiem.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg",
-                    }}
-                  />
-                </View>
+      <TopBar keyword={keyword} handleKeyWord={setKeyword} />
+      {fontsLoaded && (
+        <FlatList
+          ListHeaderComponent={() => (
+            <View style={{ paddingHorizontal: 16 }}>
+              <RecommendBooks />
 
-                <TextInputForm
-                  style={{
-                    marginVertical: 10,
-                    borderRadius: 4,
-                    borderWidth: 1,
-                    paddingHorizontal: 12,
-                    borderColor: theme.colors.lightGray,
-                  }}
-                  placeholder="Search Keyword...."
-                  value={keyword}
-                  onChangeText={(text) => handleKeyword(text)}
-                />
-                <View style={{ height: 30 }} />
-                {DataBook ? (
-                  <Carousel
-                    data={DataBook?.slice(0, 5)}
-                    renderItem={_renderItem}
-                    sliderWidth={width - 32}
-                    itemWidth={width - 32}
-                    loop
-                    autoplay
-                    autoplayDelay={3000}
-                    horizontal
-                  />
-                ) : null}
-
-                <View style={{ height: 30 }} />
-
-                <Text
-                  style={{
-                    fontSize: 20,
-                    fontWeight: "bold",
-                    fontFamily: "Oswald_700Bold",
-                  }}
-                >
-                  List Book
-                </Text>
-                <View style={{ height: 30 }} />
-              </View>
-              <FlatList
-                data={DataBook}
-                renderItem={_renderItemBook}
-                keyExtractor={(item, index) => item.id.toString()}
-                contentContainerStyle={{ flex: 1 }}
-                showsHorizontalScrollIndicator={false}
-                ItemSeparatorComponent={() => {
-                  return <View style={{ width: 10 }} />;
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "bold",
+                  fontFamily: "Oswald_700Bold",
                 }}
-                ListEmptyComponent={() => {
-                  return (
-                    <View
-                      style={{
-                        height: "100%",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Text
-                        style={{ fontSize: 30, fontFamily: "Oswald_700Bold" }}
-                      >
-                        No Data
-                      </Text>
-                    </View>
-                  );
-                }}
-              />
-            </>
+              >
+                New Books
+              </Text>
+              <View style={{ height: 10 }} />
+            </View>
           )}
-          <View style={{ height: inset.bottom + 100 }} />
-        </>
-      </ScrollView>
+          data={books}
+          renderItem={renderBookItem(navigation)}
+          keyExtractor={(item, index) => `book-${item.id}`}
+          showsHorizontalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+          ListEmptyComponent={ListEmpty}
+          onEndReachedThreshold={0.7}
+          onEndReached={loadMoreBooks}
+          ListFooterComponent={() => (
+            <View style={{ height: inset.bottom + 100 }} />
+          )}
+        />
+      )}
     </View>
   );
 };
 
-export default HomeScreen;
+const ListEmpty = () => (<View
+  style={{
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+>
+  <Text
+    style={{ fontSize: 30, fontFamily: "Oswald_700Bold" }}
+  >
+    No Data
+  </Text>
+</View>
+)
+
 
 const styles = StyleSheet.create({
   container: {
@@ -407,3 +98,5 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
 });
+
+export default HomeScreen;
