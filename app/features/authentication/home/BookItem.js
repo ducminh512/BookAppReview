@@ -31,7 +31,7 @@ export const renderBookItem = (navigation) => ({ item, index }) => (
         }}
         numberOfLines={3}
       >
-        {index} . {item?.title}
+        {item?.title}
       </Text>
       <Text
         style={{

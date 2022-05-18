@@ -1,46 +1,25 @@
-import { useFonts, FONTS, BASE_API_URL } from "../../share";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useIsFocused, useNavigation } from "@react-navigation/core";
+import { useFonts, FONTS } from "../../share";
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
   FlatList,
   Image,
-  ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
-import { BottomSheet, ListItem, Rating } from "react-native-elements";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Button from "../../../components/Button";
 import Header from "../../../components/Header";
-import TextInputForm from "../../../components/TextInputForm";
 import { theme } from "../../../theme";
 import { sdk } from "../../../core";
-import { api } from "../../../core/api";
 import { BookView } from "./BookView";
-let bookOptions = [
-  "Want to Read",
-  "Start Reading",
-  "Read",
-  "Favorite Book",
-  "Cancel Favorite Book",
-  "Cancel",
-];
 
-const { width } = Dimensions.get("window");
-
-const calcRate = (sum, count) => count === 0 ? 2.5 : sum / (2.0 * count);
 
 const BookDetail = ({ route }) => {
-  const navigation = useNavigation();
   const inset = useSafeAreaInsets();
 
-  const isFocused = useIsFocused();
   const { item } = route.params || {};
   const [infoBook, setInfoBook] = useState(item);
+  const [comments, setComments] = useState([]);
   // const [reviewList, setReviewList] = useState([]);
 
   const [review, setReview] = useState("");
@@ -49,70 +28,31 @@ const BookDetail = ({ route }) => {
   // console.log({ bookAll });
 
   useEffect(() => {
-    api.getBookDetail(item.id).then(book => setInfoBook(book))
+    sdk.getBookDetail(item.id).then(book => setInfoBook(book))
   }, []);
+
+  // const lastIndex = comments.length === 0 ? 1e9 : comments[comments.length - 1].id
+
+  useEffect(() => {
+    sdk.getBookComments(item.id, 10)
+      .then(({ data }) => setComments([...comments, ...data]))
+  }, [])
 
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>
       <Header title="Book detail" />
       <FlatList
-        ListHeaderComponent={() => (<BookView infoBook={infoBook} />)}
-        data={[1, 2, 3, 4, 5]}
-        renderItem={({ item, index }) => {
-          console.log({ item });
-          return (
-            <View
-              style={{
-                width: width - 40,
-                marginLeft: 5,
-                padding: 12,
-                flexDirection: "row",
-                marginVertical: 10,
-                backgroundColor: "white",
-                borderRadius: 8,
-                shadowColor: "#000",
-                shadowOffset: {
-                  width: 0,
-                  height: 2,
-                },
-                shadowOpacity: 0.25,
-                shadowRadius: 3.84,
-
-                elevation: 5,
-              }}
-            >
-              <Image
-                source={{
-                  uri: "https://cogaidiem.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg",
-                }}
-                style={{ height: 50, width: 50, borderRadius: 50 / 2 }}
-              />
-              <View style={{ paddingLeft: 10 }}>
-                <Text style={{ fontFamily: "Roboto_500Medium" }}>
-                  Dao Duc Minh
-                </Text>
-                <Rating
-                  type="star"
-                  startingValue={0}
-                  readonly
-                  imageSize={15}
-                  style={{ paddingVertical: 10 }}
-                />
-                <Text style={{ fontFamily: "Roboto_500Medium" }}>
-                  review
-                </Text>
-              </View>
-
-              <MaterialCommunityIcons
-                name="window-close"
-                size={24}
-                color={"red"}
-                style={{ position: "absolute", right: 10, top: 5 }}
-                onPress={() => { }}
-              />
-            </View>
-          );
-        }}
+        ListHeaderComponent={() => (
+          <BookView
+            infoBook={infoBook}
+            handleNewComment={cmt => {
+              console.log(cmt);
+              setComments([cmt, ...comments])
+            }}
+          />
+        )}
+        data={comments}
+        renderItem={renderComment}
         keyExtractor={(item, index) => index.toString()}
       />
 
@@ -120,14 +60,13 @@ const BookDetail = ({ route }) => {
   );
 };
 
-const Comment = () => (
+const renderComment = ({ item }) => (
   <View
     style={{
-      width: width - 40,
-      marginLeft: 5,
+      marginHorizontal: 16,
       padding: 12,
       flexDirection: "row",
-      marginVertical: 10,
+      marginVertical: 5,
       backgroundColor: "white",
       borderRadius: 8,
       shadowColor: "#000",
@@ -142,36 +81,19 @@ const Comment = () => (
     }}
   >
     <Image
-      source={{
-        uri: "https://cogaidiem.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg",
-      }}
+      source={{ uri: item["avatar_url"], }}
       style={{ height: 50, width: 50, borderRadius: 50 / 2 }}
     />
-    <View style={{ paddingLeft: 10 }}>
-      <Text style={{ fontFamily: "Roboto_500Medium" }}>
-        Dao Duc Minh
+    <View style={{ paddingLeft: 10, paddingRight: 40 }}>
+      <Text style={{ fontFamily: "Roboto_700Bold" }}>
+        {item.username}
       </Text>
-      <Rating
-        type="star"
-        startingValue={0}
-        readonly
-        imageSize={15}
-        style={{ paddingVertical: 10 }}
-      />
       <Text style={{ fontFamily: "Roboto_500Medium" }}>
-        review
+        {item.content}
       </Text>
     </View>
-
-    <MaterialCommunityIcons
-      name="window-close"
-      size={24}
-      color={"red"}
-      style={{ position: "absolute", right: 10, top: 5 }}
-      onPress={() => { }}
-    />
   </View>
-)
+);
 
 export default BookDetail;
 const styles = StyleSheet.create({

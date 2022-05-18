@@ -22,8 +22,9 @@ import {
   Oswald_700Bold,
 } from "@expo-google-fonts/oswald";
 
+export {useFonts};
 
-const FONTS = {
+export const FONTS = {
   Roboto_100Thin,
   Roboto_100Thin_Italic,
   Roboto_300Light,
@@ -44,10 +45,13 @@ const FONTS = {
   Oswald_700Bold,
 }
 
-const BASE_API_URL = "https://api.mybooklist.ndtai.me"
+export const BASE_API_URL = "https://api.mybooklist.ndtai.me"
 
-export {
-  useFonts,
-  FONTS,
-  BASE_API_URL,
-};
+export const BOOKMARK_OPTIONS = [
+  "Want to Read",
+  "Start Reading",
+  "Read",
+  "Favorite Book",
+  "Cancel Favorite Book",
+  "Cancel",
+];

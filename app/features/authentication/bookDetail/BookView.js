@@ -1,47 +1,55 @@
-import { useFonts, FONTS, BASE_API_URL } from "../../share";
+import { BASE_API_URL, BOOKMARK_OPTIONS } from "../../share";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Dimensions,
-  FlatList,
   Image,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { BottomSheet, ListItem, Rating } from "react-native-elements";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../../components/Button";
-import Header from "../../../components/Header";
 import TextInputForm from "../../../components/TextInputForm";
 import { theme } from "../../../theme";
 import { sdk } from "../../../core";
-import { api } from "../../../core/api";
-let bookOptions = [
-  "Want to Read",
-  "Start Reading",
-  "Read",
-  "Favorite Book",
-  "Cancel Favorite Book",
-  "Cancel",
-];
+import { useNavigation } from "@react-navigation/native";
+
 
 const calcRate = (sum, count) => count === 0 ? 2.5 : sum / (2.0 * count);
 const { width } = Dimensions.get("window");
 
 
-export const BookView = ({ infoBook }) => {
+export const BookView = ({ infoBook, handleNewComment }) => {
   const [showSynopsis, setShowSynopsis] = useState(false);
   const [openSheet, setOpenSheet] = useState(false);
   const [rating, setRating] = useState(0);
+  const [draftComment, setDraftComment] = useState("");
 
+  const navigation = useNavigation();
 
   const showFullSynopsis = () => {
     setShowSynopsis((value) => !value);
-    // console.log('message: ', bookMark)
   };
+
+  const addComment = async () => {
+    if (draftComment === "") return;
+    console.debug("Creating new comment ...")
+    sdk.addComment({ "book_id": infoBook.id, "content": draftComment })
+      .then(newComment => {
+        setDraftComment("")
+        sdk.getCurrentUserInfo()
+          .then(info => {
+            newComment.username = info.name
+            newComment["avatar_url"] = info["avatar_url"]
+            console.log("new comment created" + newComment);
+            handleNewComment(newComment)
+          })
+          .catch(console.log)
+      })
+    // .catch(_ => navigation.navigate(routesName.LOGIN_SCREEN))
+  }
 
   return (
     <View style={{ marginTop: 15, marginHorizontal: 16 }}>
@@ -119,22 +127,22 @@ export const BookView = ({ infoBook }) => {
           height: width / 5,
         }}
         inputStyle={{
-          height: width / 2,
+          height: width / 5,
         }}
-        value={""}
+        value={draftComment}
         multiline={true}
-        label="Write down your feeling <3"
-        onChangeText={(text) => setReview(text)}
+        label="Write down your feeling about the book <3"
+        onChangeText={setDraftComment}
         textAlignVertical={"top"}
       />
       <Button
         title={"Send"}
-        onPress={() => { }}
+        onPress={addComment}
         backgroundColor={theme.colors.blue}
       />
 
       <BottomSheet modalProps={{}} isVisible={openSheet}>
-        {bookOptions.map((l, i) => {
+        {BOOKMARK_OPTIONS.map((l, i) => {
           return (
             <ListItem
               key={i}

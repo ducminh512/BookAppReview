@@ -1,9 +1,8 @@
 
 import { api } from "./api";
-import { login, getCurrentUserInfo } from "./funcs";
+import * as funcs from "./funcs";
 
 export const sdk = {
   ...api,
-    login,
-    getCurrentUserInfo,
+  ...funcs
 }

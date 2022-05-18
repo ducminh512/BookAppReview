@@ -14,6 +14,7 @@ import { sdk } from "../../../core";
 import { TopBar } from "./TopBar";
 import { RecommendBooks } from "./Recommend";
 import { renderBookItem } from "./BookItem";
+import { SAMPLE_BOOKS } from "../../../core/const";
 
 const PAGE_SIZE = 20;
 
@@ -21,7 +22,7 @@ const HomeScreen = () => {
   const inset = useSafeAreaInsets();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
-  const [books, setBooks] = useState([]);
+  const [books, setBooks] = useState(SAMPLE_BOOKS);
   const [keyword, setKeyword] = useState("");
   let [fontsLoaded] = useFonts(FONTS);
 
