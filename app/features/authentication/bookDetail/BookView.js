@@ -16,10 +16,8 @@ import { theme } from "../../../theme";
 import { sdk } from "../../../core";
 import { useNavigation } from "@react-navigation/native";
 
-
-const calcRate = (sum, count) => count === 0 ? 2.5 : sum / (2.0 * count);
+const calcRate = (sum, count) => (count === 0 ? 2.5 : sum / (2.0 * count));
 const { width } = Dimensions.get("window");
-
 
 export const BookView = ({ infoBook, handleNewComment }) => {
   const [showSynopsis, setShowSynopsis] = useState(false);
@@ -35,21 +33,23 @@ export const BookView = ({ infoBook, handleNewComment }) => {
 
   const addComment = async () => {
     if (draftComment === "") return;
-    console.debug("Creating new comment ...")
-    sdk.addComment({ "book_id": infoBook.id, "content": draftComment })
-      .then(newComment => {
-        setDraftComment("")
-        sdk.getCurrentUserInfo()
-          .then(info => {
-            newComment.username = info.name
-            newComment["avatar_url"] = info["avatar_url"]
+    console.debug("Creating new comment ...");
+    sdk
+      .addComment({ book_id: infoBook.id, content: draftComment })
+      .then((newComment) => {
+        setDraftComment("");
+        sdk
+          .getCurrentUserInfo()
+          .then((info) => {
+            newComment.username = info.name;
+            newComment["avatar_url"] = info["avatar_url"];
             console.log("new comment created" + newComment);
-            handleNewComment(newComment)
+            handleNewComment(newComment);
           })
-          .catch(console.log)
-      })
+          .catch(console.log);
+      });
     // .catch(_ => navigation.navigate(routesName.LOGIN_SCREEN))
-  }
+  };
 
   return (
     <View style={{ marginTop: 15, marginHorizontal: 16 }}>
@@ -74,7 +74,8 @@ export const BookView = ({ infoBook, handleNewComment }) => {
           <Text style={styles.author}>by {infoBook.author}</Text>
           <View style={styles.bottomContent}>
             <Text style={{ fontFamily: "Oswald_500Medium" }}>
-              <Text style={styles.bottom}>Published: </Text> {infoBook.publisher}
+              <Text style={styles.bottom}>Published: </Text>{" "}
+              {infoBook.publisher}
             </Text>
             <Text style={{ fontFamily: "Oswald_500Medium" }}>
               <Text style={styles.bottom}>Pages:</Text> {infoBook.pages}
@@ -83,13 +84,16 @@ export const BookView = ({ infoBook, handleNewComment }) => {
           <Text style={{ marginVertical: 10 }}>categories</Text>
           <Text style={styles.synopsis}>Synopsis</Text>
           <Text style={{ fontFamily: "Roboto_400Regular_Italic" }}>
-            {showSynopsis ? infoBook.description : infoBook.description?.slice(0, 50) + "..."}
+            {showSynopsis
+              ? infoBook.description
+              : infoBook.description?.slice(0, 50) + "..."}
             <TouchableOpacity onPress={() => showFullSynopsis()}>
-              <Text style={styles.showMore}>{showSynopsis ? "Show less" : "Show more"}</Text>
+              <Text style={styles.showMore}>
+                {showSynopsis ? "Show less" : "Show more"}
+              </Text>
             </TouchableOpacity>
           </Text>
           <View style={styles.bottomContent}>
-
             <View style={styles.rating}>
               <Rating
                 type="star"
@@ -176,7 +180,7 @@ export const BookView = ({ infoBook, handleNewComment }) => {
 
       <Text style={styles.title}>Comments</Text>
     </View>
-  )
+  );
 };
 
 const styles = StyleSheet.create({
@@ -237,4 +241,4 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: 400,
   },
-})
+});

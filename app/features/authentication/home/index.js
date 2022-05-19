@@ -1,12 +1,7 @@
-import { useFonts, FONTS } from "../../share"
+import { useFonts, FONTS } from "../../share";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { theme } from "../../../theme";
@@ -30,13 +25,15 @@ const HomeScreen = () => {
     sdk.getBooks().then(({ data }) => {
       console.debug(data[0]);
       setBooks(data);
-    })
+    });
   }, [isFocused, keyword]);
 
   const loadMoreBooks = async () => {
     console.log("load more books....");
-    sdk.getBooks(PAGE_SIZE, books.length).then(({ data }) => setBooks([...books, ...data]))
-  }
+    sdk
+      .getBooks(PAGE_SIZE, books.length)
+      .then(({ data }) => setBooks([...books, ...data]));
+  };
 
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>
@@ -76,21 +73,17 @@ const HomeScreen = () => {
   );
 };
 
-const ListEmpty = () => (<View
-  style={{
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  }}
->
-  <Text
-    style={{ fontSize: 30, fontFamily: "Oswald_700Bold" }}
+const ListEmpty = () => (
+  <View
+    style={{
+      height: "100%",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
   >
-    No Data
-  </Text>
-</View>
-)
-
+    <Text style={{ fontSize: 30, fontFamily: "Oswald_700Bold" }}>No Data</Text>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {

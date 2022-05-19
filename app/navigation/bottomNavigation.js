@@ -54,8 +54,10 @@ const BottomTabBars = () => {
         name={routesName.FAVORITES_SCREEN}
         component={bottom.Favourite_Screen}
         options={{
-          tabBarButton: (props) => (
-            <TabBarAdvancedButton bgColor={"#fff"} {...props} />
+          title: "",
+
+          tabBarIcon: ({ color }) => (
+            <Icon name="heart" size={24} color={color} />
           ),
         }}
       />
