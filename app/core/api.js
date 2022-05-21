@@ -58,15 +58,30 @@ async function getBookComments(bookId, limit = 10, lastId = 1e9) {
   }).then(res => res.data)
 }
 
+async function getUserComments() {
+  const userInfo = await Storage.getData(StorageKeys.userInfo);
+  const url = `${BASE_API_URL}/accounts/${userInfo.id}/comments`;
+  const accessToken = await Storage.getData(StorageKeys.accessToken)
+  console.debug("sending GET request to " + url)
+  return await axios.get(url, {
+    params: {
+      "page_size": 10,
+    }
+  }, { headers: authHeader(accessToken) }).then(res => res.data)
+}
+
 export const api = {
+  _login: postReq("/auth/login"),
+  _refreshToken: postReq("/auth/refresh"),
+
   getBooks,
   getBookComments,
   getBookDetail,
+  getUserComments,
 
   createAccount: postReq("/accounts"),
-  login: postReq("/auth/login"),
-  refreshToken: postReq("/auth/refresh"),
   bookmarkBook: postReq("/bookmarks"),
   rateBook: postReq("/rates"),
   addComment: postReqAuth("/comments"),
+  addBookmark: postReqAuth("/bookmarks"),
 }

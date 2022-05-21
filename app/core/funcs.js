@@ -28,7 +28,7 @@ export async function renewAccessToken() {
     renewAccessTokenTaskId = setInterval(renewAccessToken, _TOKEN_RENEW_INTERVAL);
   }
 
-  api.refreshToken({ "refresh_token": refreshToken })
+  api._refreshToken({ "refresh_token": refreshToken })
     .then(response => {
       Storage.storeData(response["access_token"], StorageKeys.accessToken);
     })
@@ -41,7 +41,7 @@ export async function renewAccessToken() {
 
 export async function login(email, password) {
   console.debug("Login....");
-  const response = await api.login({ email, password }).catch(err => {
+  const response = await api._login({ email, password }).catch(err => {
     console.debug("Login request error!");
     throw err
   });
@@ -59,4 +59,13 @@ export async function login(email, password) {
 
 export async function getCurrentUserInfo() {
   return await Storage.getData(StorageKeys.userInfo);
+}
+
+
+export async function logout() {
+  AsyncStorage.multiRemove([
+    StorageKeys.accessToken,
+    StorageKeys.refreshToken,
+    StorageKeys.userInfo
+  ])
 }
