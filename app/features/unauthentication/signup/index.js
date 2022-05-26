@@ -24,18 +24,15 @@ const SignUpScreen = () => {
   } = useForm({
     defaultValues: {
       username: "",
-      address: "",
-      phone: "",
       email: "",
       password: "",
       passwordConfirmation: "",
-      age: "",
     },
     mode: "onChange",
     resolver: yupResolver(signupSchema),
   });
   const onSubmit = handleSubmit(
-    ({ email, password, address, phone, username, age }) => {
+    ({ email, password, username }) => {
       Keyboard.dismiss();
       navigation.navigate(routesName.LOGIN_SCREEN);
     }
@@ -70,7 +67,7 @@ const SignUpScreen = () => {
                   paddingHorizontal: 12,
                   borderColor: theme.colors.lightGray,
                 }}
-                placeholder="User name"
+                placeholder="Username"
                 value={value}
                 onChangeText={onChange}
                 placeholderTextColor={theme.colors.placeholder}
@@ -97,69 +94,6 @@ const SignUpScreen = () => {
                 onChangeText={onChange}
                 placeholderTextColor={theme.colors.placeholder}
                 errorMessage={errors?.email?.message}
-              />
-            )}
-          />
-
-          <Controller
-            name="phone"
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <TextInputForm
-                style={{
-                  marginVertical: 10,
-                  borderRadius: 4,
-                  borderWidth: 1,
-                  paddingHorizontal: 12,
-                  borderColor: theme.colors.lightGray,
-                }}
-                placeholder="Phone"
-                keyboardType="phone-pad"
-                value={value}
-                onChangeText={onChange}
-                placeholderTextColor={theme.colors.placeholder}
-                errorMessage={errors?.phone?.message}
-              />
-            )}
-          />
-          <Controller
-            name="age"
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <TextInputForm
-                style={{
-                  marginVertical: 10,
-                  borderRadius: 4,
-                  borderWidth: 1,
-                  paddingHorizontal: 12,
-                  borderColor: theme.colors.lightGray,
-                }}
-                placeholder="Age"
-                keyboardType="numeric"
-                value={value}
-                onChangeText={onChange}
-                placeholderTextColor={theme.colors.placeholder}
-                errorMessage={errors?.age?.message}
-              />
-            )}
-          />
-          <Controller
-            name="address"
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <TextInputForm
-                style={{
-                  marginVertical: 10,
-                  borderRadius: 4,
-                  borderWidth: 1,
-                  paddingHorizontal: 12,
-                  borderColor: theme.colors.lightGray,
-                }}
-                placeholder="Address"
-                value={value}
-                onChangeText={onChange}
-                placeholderTextColor={theme.colors.placeholder}
-                errorMessage={errors?.address?.message}
               />
             )}
           />
@@ -245,9 +179,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   logo: {
-    width: 140,
+    width: 200,
     height: 140,
-    marginTop: 100,
+    marginTop: 50,
   },
   boxLogo: {
     alignItems: "center",

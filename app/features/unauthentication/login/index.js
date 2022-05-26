@@ -141,9 +141,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   logo: {
-    width: 140,
+    width: 200,
     height: 140,
-    marginTop: 100,
+    marginTop: 50,
   },
   boxLogo: {
     alignItems: "center",
