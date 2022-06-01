@@ -33,15 +33,20 @@ const LoginScreen = () => {
     setIsLoadingLogin(true);
     Keyboard.dismiss();
 
-    sdk.login(email, password)
-      .then(() => navigation.navigate(routesName.BOTTOM_BAR))
-      .catch((err) => {
-        Alert.alert(
-          "Login failed!",
-          err.response.data.message,
-        )
-      })
-      .finally(setIsLoadingLogin(false));
+    try {
+      sdk.login(email, password)
+        .then(() => navigation.navigate(routesName.BOTTOM_BAR))
+        .catch((err) => {
+          Alert.alert(
+            "Login failed!",
+            err.response.data.message,
+          )
+        })
+    } catch (err) {
+      console.log("Login ERR: ", err);
+    } finally {
+      setIsLoadingLogin(false)
+    }
   });
 
   return (

@@ -5,56 +5,52 @@ import { Storage, StorageKeys } from "./storage";
 
 let renewAccessTokenTaskId = null;
 
-export async function renewAccessToken() {
-  console.debug("refreshing token ...");
+export async function setRenewAccessTokenLoop() {
+
   const refreshToken = await Storage.getData(StorageKeys.refreshToken);
 
-  function clear() {
-    AsyncStorage.multiRemove([
-      StorageKeys.accessToken,
-      StorageKeys.refreshToken,
-      StorageKeys.userInfo
-    ])
-    if (renewAccessTokenTaskId !== null)
+  if (renewAccessTokenTaskId !== null || refreshToken === null) {
+    clearInterval(renewAccessTokenTaskId)
+    renewAccessTokenTaskId = null
+    return
+  }
+
+  async function _renewAccessToken(refreshToken) {
+    console.debug("Refreshing access token ...");
+
+    async function clear() {
       clearInterval(renewAccessTokenTaskId);
+      await AsyncStorage.multiRemove([
+        StorageKeys.accessToken,
+        StorageKeys.refreshToken,
+        StorageKeys.userInfo
+      ])
+    }
+
+    if (refreshToken === null) {
+      await clear()
+      return;
+    }
+
+    api._refreshToken({ "refresh_token": refreshToken })
+      .then(response => {
+        Storage.storeData(response["access_token"], StorageKeys.accessToken);
+      })
+      .catch((err) => clear().then(() => { throw err }))
   }
 
-  if (refreshToken === null) {
-    clear()
-    return;
-  }
-
-  if (renewAccessTokenTaskId === null) {
-    renewAccessTokenTaskId = setInterval(renewAccessToken, _TOKEN_RENEW_INTERVAL);
-  }
-
-  api._refreshToken({ "refresh_token": refreshToken })
-    .then(response => {
-      Storage.storeData(response["access_token"], StorageKeys.accessToken);
-    })
-    .catch((err) => {
-      console.debug(err.response.data);
-      clear();
-      throw err
-    })
+  renewAccessTokenTaskId = setInterval(() => _renewAccessToken(refreshToken), 1000 * 15)
 }
 
 export async function login(email, password) {
-  console.debug("Login....");
-  const response = await api._login({ email, password }).catch(err => {
-    console.debug("Login request error!");
-    throw err
-  });
+  const response = await api._login({ email, password });
   console.debug(response);
 
   Storage.storeData(response.account, StorageKeys.userInfo);
-  Storage.storeData(response.account["id"], StorageKeys.userId);
   Storage.storeData(response["access_token"], StorageKeys.accessToken);
   await Storage.storeData(response["refresh_token"], StorageKeys.refreshToken);
 
-  renewAccessTokenTaskId = setInterval(renewAccessToken, _TOKEN_RENEW_INTERVAL);
-
-  console.log("finish");
+  setRenewAccessTokenLoop()
 }
 
 export async function getCurrentUserInfo() {

@@ -8,21 +8,27 @@ const authHeader = (accessToken) => ({
   Authorization: `Bearer ${accessToken}`
 })
 
-function postReq(uri) {
+function makePostReq(uri, conf = { auth: false }) {
   const url = BASE_API_URL + uri;
   return async function (data) {
     console.debug("sending POST request to " + url)
-    return await axios.post(url, qs.stringify(data)).then(res => res.data)
-      .catch(err => { console.error(err.response.data); throw err })
+    const accessToken = conf.auth ? await Storage.getData(StorageKeys.accessToken) : "";
+    const postData = qs.stringify(data);
+    return await axios.post(url, postData, { headers: authHeader(accessToken) })
+      .then(res => res.data)
+      .catch(err => { console.debug("Error response: " + err.response.data); throw err })
   }
 }
 
-function postReqAuth(uri) {
+function makeGetReq(uri, conf = { auth: false }) {
   const url = BASE_API_URL + uri;
-  return async function (data) {
-    console.debug("sending POST request to " + url)
-    const accessToken = await Storage.getData(StorageKeys.accessToken)
-    return await axios.post(url, qs.stringify(data), { headers: authHeader(accessToken) })
+  return async function ({ params = {} }) {
+    console.debug("sending GET request to " + url)
+    const accessToken = conf.auth ? await Storage.getData(StorageKeys.accessToken) : "";
+    return await axios.get(url, {
+      params,
+      headers: authHeader(accessToken)
+    })
       .then(res => res.data)
       .catch(err => { console.error(err.response.data); throw err })
   }
@@ -30,58 +36,50 @@ function postReqAuth(uri) {
 
 
 async function getBooks(limit = 20, offset = 0, query = "") {
-  const url = BASE_API_URL + "/books";
-  console.debug("sending GET request to " + url)
-  return await axios.get(url, {
+  return await makeGetReq("/books")({
     params: {
       "page_size": limit,
-      "offset": offset,
       "q": query,
+      offset,
     }
-  }).then(res => res.data)
+  })
 }
 
 async function getBookDetail(id) {
-  const url = `${BASE_API_URL}/books/${id}`;
-  console.debug("sending GET request to " + url)
-  return await axios.get(url).then(res => res.data)
+  return await makeGetReq(`/books/${id}`)()
 }
 
 async function getBookComments(bookId, limit = 10, lastId = 1e9) {
-  const url = `${BASE_API_URL}/books/${bookId}/comments`;
-  console.debug("sending GET request to " + url)
-  return await axios.get(url, {
+  return await makeGetReq(`/books/${bookId}/comments`)({
     params: {
       "last_id": lastId,
-      "page_size": limit,
+      "page_size": limit
     }
-  }).then(res => res.data)
+  })
 }
 
 async function getUserComments() {
   const userInfo = await Storage.getData(StorageKeys.userInfo);
-  const url = `${BASE_API_URL}/accounts/${userInfo.id}/comments`;
-  const accessToken = await Storage.getData(StorageKeys.accessToken)
-  console.debug("sending GET request to " + url)
-  return await axios.get(url, {
+  return await makeGetReq(`/accounts/${userInfo.id}/comments`, { auth: true })({
     params: {
-      "page_size": 10,
+      "page_size": 1e9
     }
-  }, { headers: authHeader(accessToken) }).then(res => res.data)
+  })
 }
 
 export const api = {
-  _login: postReq("/auth/login"),
-  _refreshToken: postReq("/auth/refresh"),
+  _login: makePostReq("/auth/login"),
+  _refreshToken: makePostReq("/auth/refresh"),
 
   getBooks,
   getBookComments,
   getBookDetail,
   getUserComments,
 
-  createAccount: postReq("/accounts"),
-  bookmarkBook: postReq("/bookmarks"),
-  rateBook: postReq("/rates"),
-  addComment: postReqAuth("/comments"),
-  addBookmark: postReqAuth("/bookmarks"),
+  createAccount: makePostReq("/accounts"),
+  bookmarkBook: makePostReq("/bookmarks"),
+  rateBook: makePostReq("/rates"),
+  addComment: makePostReq("/comments", { auth: true }),
+  addBookmark: makePostReq("/bookmarks", { auth: true }),
+  createAccount: makePostReq("/accounts")
 }

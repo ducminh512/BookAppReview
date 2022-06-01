@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Image, Keyboard, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Keyboard, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../../components/Button";
 import FormContainer from "../../../components/FormContainer";
@@ -11,6 +11,7 @@ import TextInputForm from "../../../components/TextInputForm";
 import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
 import { signupSchema } from "./signupValidation";
+import { sdk } from "../../../core";
 
 const SignUpScreen = () => {
   const inset = useSafeAreaInsets();
@@ -23,23 +24,38 @@ const SignUpScreen = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      username: "",
-      email: "",
-      password: "",
-      passwordConfirmation: "",
+      username: "Nguyễn An",
+      email: "user@gmail.com",
+      password: "password",
+      passwordConfirmation: "password",
     },
     mode: "onChange",
     resolver: yupResolver(signupSchema),
   });
+
   const onSubmit = handleSubmit(
     ({ email, password, username }) => {
+      console.log("sign up: ", username, email, password);
       Keyboard.dismiss();
-      navigation.navigate(routesName.LOGIN_SCREEN);
+      setIsLoadingSignUp(true)
+      sdk.createAccount({
+        email,
+        password,
+        "name": username,
+      })
+        .then(() => navigation.navigate(routesName.LOGIN_SCREEN))
+        .catch(err => {
+          Alert.alert(
+            "Create account failed!",
+            err.response.message
+          )
+        })
+        .finally(() => setIsLoadingSignUp(false))
     }
   );
+
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>
-      {/* // FormContainer là keyboardAvoiding bao cả view */}
       <FormContainer>
         <View style={styles.boxLogo}>
           <Image
@@ -54,7 +70,6 @@ const SignUpScreen = () => {
         <Text style={styles.textWelcome}>Welcome</Text>
         <Text style={styles.textLet}>Let's get started!</Text>
         <View>
-          {/* Viết một input để sài cho nhiều lần */}
           <Controller
             name="username"
             control={control}
@@ -136,14 +151,13 @@ const SignUpScreen = () => {
                 placeholder="Password Confirmation"
                 value={value}
                 onChangeText={onChange}
-                onSubmitEditing={onSubmit}
+                // onSubmitEditing={onSubmit}
                 placeholderTextColor={theme.colors.placeholder}
                 errorMessage={errors?.passwordConfirmation?.message}
               />
             )}
           />
 
-          {/* Button cũng vậy viết 1 lần sử dụng nhiều lần  */}
           <Button
             backgroundColor={theme.colors.orange}
             title="Sign Up"

@@ -24,18 +24,18 @@ export const renderBookItem = (navigation) => ({ item, index }) => (
     <View style={{ width: (width - 32) * 0.5, paddingLeft: 10 }}>
       <Text
         style={{
-          fontSize: 19,
+          fontSize: 15,
           marginBottom: 10,
           fontWeight: "bold",
           fontFamily: "Oswald_700Bold",
         }}
-        numberOfLines={3}
+        numberOfLines={5}
       >
         {item?.title}
       </Text>
       <Text
         style={{
-          fontSize: 16,
+          fontSize: 13,
           marginBottom: 10,
           fontFamily: "Oswald_500Medium",
         }}
@@ -47,7 +47,7 @@ export const renderBookItem = (navigation) => ({ item, index }) => (
       >
         <Text
           style={{
-            fontSize: 16,
+            fontSize: 12,
             fontWeight: "600",
             fontFamily: "Oswald_300Light",
           }}
@@ -56,13 +56,13 @@ export const renderBookItem = (navigation) => ({ item, index }) => (
         </Text>
         <Text
           style={{
-            fontSize: 16,
+            fontSize: 12,
             fontWeight: "600",
             marginRight: 5,
             fontFamily: "Oswald_300Light",
           }}
         >
-          Rating: {item["avg_rate"] || "-" }
+          Rating: {item["avg_rate"] || "2.5" }
         </Text>
       </View>
 
@@ -72,10 +72,10 @@ export const renderBookItem = (navigation) => ({ item, index }) => (
         }}
         style={{
           marginTop: 20,
-          width: 100,
-          height: 45,
+          width: 70,
+          height: 30,
           borderColor: "red",
-          borderRadius: 100 / 2,
+          borderRadius: 50 / 2,
           borderWidth: 1,
           alignItems: "center",
           justifyContent: "center",
@@ -83,12 +83,12 @@ export const renderBookItem = (navigation) => ({ item, index }) => (
       >
         <Text
           style={{
-            fontSize: 18,
+            fontSize: 12,
             fontWeight: "600",
             fontFamily: "Oswald_500Medium",
           }}
         >
-          Detail
+          Detail {'>>'}
         </Text>
       </TouchableOpacity>
     </View>
@@ -97,7 +97,7 @@ export const renderBookItem = (navigation) => ({ item, index }) => (
 
 const style = StyleSheet.create({
   container: {
-    width: width - 32,
+    width: width - 40,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -114,8 +114,8 @@ const style = StyleSheet.create({
     flexDirection: "row",
   },
   coverImg: {
-    width: (width - 32) * 0.5,
-    height: 240,
+    width: (width - 32) * 0.4,
+    height: 200,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
   }

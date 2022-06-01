@@ -9,20 +9,13 @@ import { sdk } from "../core";
 const Stack = createStackNavigator();
 
 const RootStack = () => {
-  const [initialRoute, setInitialRoute] = useState(routesName.LOGIN_SCREEN);
-
-  useEffect(() => {
-    sdk.renewAccessToken()
-      .catch(_ => setInitialRoute(routesName.LOGIN_SCREEN))
-  }, [])
-
   return (
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
         }}
-        initialRouteName={initialRoute}
+        initialRouteName={routesName.LOGIN_SCREEN}
       >
         <Stack.Screen name={routesName.BOTTOM_BAR} component={BottomTabBars} />
 

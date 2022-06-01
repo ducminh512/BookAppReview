@@ -67,6 +67,7 @@ const HomeScreen = () => {
           renderItem={renderBookItem(navigation)}
           keyExtractor={(item, index) => `book-${item.id}`}
           showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
           ListEmptyComponent={ListEmpty}
           onEndReachedThreshold={0.7}
