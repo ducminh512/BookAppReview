@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Image, Keyboard, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Keyboard, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../../components/Button";
 import FormContainer from "../../../components/FormContainer";
@@ -11,6 +11,7 @@ import TextInputForm from "../../../components/TextInputForm";
 import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
 import { signupSchema } from "./signupValidation";
+import { sdk } from "../../../core";
 
 const SignUpScreen = () => {
   const inset = useSafeAreaInsets();
@@ -24,25 +25,37 @@ const SignUpScreen = () => {
   } = useForm({
     defaultValues: {
       username: "",
-      address: "",
-      phone: "",
       email: "",
       password: "",
       passwordConfirmation: "",
-      age: "",
     },
     mode: "onChange",
     resolver: yupResolver(signupSchema),
   });
+
   const onSubmit = handleSubmit(
-    ({ email, password, address, phone, username, age }) => {
+    ({ email, password, username }) => {
+      console.log("sign up: ", username, email, password);
       Keyboard.dismiss();
-      navigation.navigate(routesName.LOGIN_SCREEN);
+      setIsLoadingSignUp(true)
+      sdk.createAccount({
+        email,
+        password,
+        "name": username,
+      })
+        .then(() => navigation.navigate(routesName.LOGIN_SCREEN))
+        .catch(err => {
+          Alert.alert(
+            "Create account failed!",
+            err.response.message
+          )
+        })
+        .finally(() => setIsLoadingSignUp(false))
     }
   );
+
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>
-      {/* // FormContainer là keyboardAvoiding bao cả view */}
       <FormContainer>
         <View style={styles.boxLogo}>
           <Image
@@ -57,7 +70,6 @@ const SignUpScreen = () => {
         <Text style={styles.textWelcome}>Welcome</Text>
         <Text style={styles.textLet}>Let's get started!</Text>
         <View>
-          {/* Viết một input để sài cho nhiều lần */}
           <Controller
             name="username"
             control={control}
@@ -70,7 +82,7 @@ const SignUpScreen = () => {
                   paddingHorizontal: 12,
                   borderColor: theme.colors.lightGray,
                 }}
-                placeholder="User name"
+                placeholder="Username"
                 value={value}
                 onChangeText={onChange}
                 placeholderTextColor={theme.colors.placeholder}
@@ -97,69 +109,6 @@ const SignUpScreen = () => {
                 onChangeText={onChange}
                 placeholderTextColor={theme.colors.placeholder}
                 errorMessage={errors?.email?.message}
-              />
-            )}
-          />
-
-          <Controller
-            name="phone"
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <TextInputForm
-                style={{
-                  marginVertical: 10,
-                  borderRadius: 4,
-                  borderWidth: 1,
-                  paddingHorizontal: 12,
-                  borderColor: theme.colors.lightGray,
-                }}
-                placeholder="Phone"
-                keyboardType="phone-pad"
-                value={value}
-                onChangeText={onChange}
-                placeholderTextColor={theme.colors.placeholder}
-                errorMessage={errors?.phone?.message}
-              />
-            )}
-          />
-          <Controller
-            name="age"
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <TextInputForm
-                style={{
-                  marginVertical: 10,
-                  borderRadius: 4,
-                  borderWidth: 1,
-                  paddingHorizontal: 12,
-                  borderColor: theme.colors.lightGray,
-                }}
-                placeholder="Age"
-                keyboardType="numeric"
-                value={value}
-                onChangeText={onChange}
-                placeholderTextColor={theme.colors.placeholder}
-                errorMessage={errors?.age?.message}
-              />
-            )}
-          />
-          <Controller
-            name="address"
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <TextInputForm
-                style={{
-                  marginVertical: 10,
-                  borderRadius: 4,
-                  borderWidth: 1,
-                  paddingHorizontal: 12,
-                  borderColor: theme.colors.lightGray,
-                }}
-                placeholder="Address"
-                value={value}
-                onChangeText={onChange}
-                placeholderTextColor={theme.colors.placeholder}
-                errorMessage={errors?.address?.message}
               />
             )}
           />
@@ -202,14 +151,13 @@ const SignUpScreen = () => {
                 placeholder="Password Confirmation"
                 value={value}
                 onChangeText={onChange}
-                onSubmitEditing={onSubmit}
+                // onSubmitEditing={onSubmit}
                 placeholderTextColor={theme.colors.placeholder}
                 errorMessage={errors?.passwordConfirmation?.message}
               />
             )}
           />
 
-          {/* Button cũng vậy viết 1 lần sử dụng nhiều lần  */}
           <Button
             backgroundColor={theme.colors.orange}
             title="Sign Up"
@@ -245,9 +193,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   logo: {
-    width: 140,
+    width: 200,
     height: 140,
-    marginTop: 100,
+    marginTop: 50,
   },
   boxLogo: {
     alignItems: "center",

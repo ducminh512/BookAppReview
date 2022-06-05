@@ -8,7 +8,8 @@ import Button from "../../../components/Button";
 import Header from "../../../components/Header";
 import TextInputForm from "../../../components/TextInputForm";
 import { theme } from "../../../theme";
-import { changepasswordSchema } from "./changepasswordValidation";
+import { changePasswordSchema } from "./changepasswordValidation";
+import { sdk } from "../../../core";
 
 const ChangePasswordScreen = () => {
   const inset = useSafeAreaInsets();
@@ -24,10 +25,11 @@ const ChangePasswordScreen = () => {
       passwordConfirmation: "",
     },
     mode: "onChange",
-    resolver: yupResolver(changepasswordSchema),
+    resolver: yupResolver(changePasswordSchema),
   });
   const onSubmit = handleSubmit(({ password }) => {
     Keyboard.dismiss();
+    sdk.updateAccountPassword(password).then(() => navigation.goBack())
   });
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>

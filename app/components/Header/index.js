@@ -70,16 +70,16 @@ export default Header;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 16,
+    paddingVertical: 10,
   },
   title: {
     flex: 1,
     textAlign: "center",
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     color: "white",
     fontFamily:'Oswald_700Bold'

@@ -1,5 +1,5 @@
 import Icons from "@expo/vector-icons/Ionicons";
-import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -21,142 +21,31 @@ const { width } = Dimensions.get("window");
 const ProfileScreen = () => {
   const inset = useSafeAreaInsets();
   const [info, setInfo] = useState({});
+  const [comments, setComments] = useState([]);
+
   let [fontsLoaded] = useFonts(FONTS);
   const navigation = useNavigation();
-  const isFocused = useIsFocused();
 
-  useEffect(() => {
+  useFocusEffect(React.useCallback(() => {
     sdk.getCurrentUserInfo().then(user => setInfo(user))
-  }, [])
+    sdk.getUserComments().then(({ data }) => {
+      setComments(data)
+    })
+  }, []))
 
-  const _renderItemBook = (item, index) => {
-    return (
-      <View
-        style={{
-          width: "100%",
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          marginVertical: 10,
-          borderRadius: 8,
-          elevation: 5,
-          paddingBottom: 10,
-
-          backgroundColor: "white",
-          flexDirection: "row",
-        }}
-      >
-        <Image
-          resizeMode="cover"
-          style={{
-            width: (width - 32) * 0.5,
-            height: 150,
-            borderTopLeftRadius: 8,
-            borderBottomLeftRadius: 8,
-          }}
-          source={{
-            uri: "https://cogaidiem.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg",
-          }}
-        />
-
-        <View style={{ width: (width - 32) * 0.5, paddingLeft: 4 }}>
-          <Text
-            style={{
-              fontSize: 19,
-              marginBottom: 10,
-              fontWeight: "bold",
-              fontFamily: "Oswald_700Bold",
-              maxWidth: (width - 32) * 0.45,
-            }}
-            numberOfLines={3}
-          >
-            {item?.volumeInfo?.title}
-          </Text>
-          <Text
-            style={{
-              fontSize: 16,
-              marginBottom: 10,
-              fontFamily: "Oswald_500Medium",
-            }}
-            key={index}
-          >
-            by admin
-          </Text>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              flex: 1,
-              width: (width - 32) * 0.4,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "600",
-                fontFamily: "Oswald_300Light",
-              }}
-            >
-              Page: {0}
-            </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "600",
-                // marginRight: 5,
-                fontFamily: "Oswald_300Light",
-              }}
-            >
-              Rating: {0}
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate(routesName.BOOK_DETAIL_SCREEN, { item });
-            }}
-            style={{
-              marginTop: 10,
-              width: 100,
-              height: 45,
-              borderColor: "red",
-              borderRadius: 50 / 2,
-              borderWidth: 1,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 18,
-                fontWeight: "600",
-                fontFamily: "Oswald_500Medium",
-              }}
-            >
-              Detail
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
   return (
-    <View style={[styles.container, { paddingTop: inset.top }]}>
+    <View style={[styles.container, { paddingTop: inset.top + 10 }]}>
       <ScrollView>
         {fontsLoaded && (
           <>
             <View style={{ flexDirection: "row", paddingHorizontal: 16 }}>
               <Image
                 style={{
-                  width: 90,
-                  height: 90,
-                  borderRadius: 90 / 2,
+                  width: 80,
+                  height: 80,
+                  borderRadius: 80 / 2,
                 }}
-                source={{ uri: info["avatar_url"], }}
+                source={{ uri: info["avatar_url"] ?? "https://freesvg.org/img/myAvatar.png", }}
               />
               <View
                 style={{
@@ -181,13 +70,13 @@ const ProfileScreen = () => {
               </View>
               <TouchableOpacity
                 onPress={() =>
-                  navigation.navigate(routesName.EDIT_PROFILE_SCREEN)
+                  navigation.navigate(routesName.EDIT_PROFILE_SCREEN, { info })
                 }
               >
                 <Icons name="create-outline" size={24} />
               </TouchableOpacity>
             </View>
-            <View style={{ marginHorizontal: 20, marginTop: 25 }}>
+            <View style={{ marginHorizontal: 20, marginTop: 15 }}>
               <Button
                 title={"Change Password"}
                 backgroundColor={theme.colors.orange}
@@ -196,14 +85,17 @@ const ProfileScreen = () => {
                 }}
               />
               <Button
-                title={"Log Out"}
+                title={"LogOut"}
                 backgroundColor={theme.colors.orange}
-                onPress={() => { }}
+                onPress={() => {
+                  sdk.logout()
+                  navigation.navigate(routesName.LOGIN_SCREEN)
+                }}
               />
-              <Text style={{ fontFamily: "Oswald_700Bold", fontSize: 20 }}>
-                My Reviews
+              <Text style={{ fontFamily: "Oswald_700Bold", fontSize: 18 }}>
+                Recent comments
               </Text>
-              {<View>{[1, 2, 3, 4, 5, 6].map(_renderItemBook)}</View>}
+              {<View>{comments.map(renderComment)}</View>}
             </View>
           </>
         )}
@@ -221,3 +113,41 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.white,
   },
 });
+
+export const renderComment = (item, index) => {
+  console.log(item);
+  item = item ?? {}
+  return (
+    <View
+      style={{
+        padding: 8,
+        flexDirection: "row",
+        marginVertical: 5,
+        backgroundColor: "white",
+        borderRadius: 8,
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+      }}
+      key={`comment-${index}`}
+    >
+      {/* <Image
+      source={{ uri: `${BASE_API_URL}/${item["cover_url"] ?? ""}` }}
+      style={{ height: 50, width: 50, borderRadius: 50 / 2 }}
+    /> */}
+      <View style={{ paddingLeft: 10, paddingRight: 40 }}>
+        <Text style={{ fontFamily: "Roboto_700Bold" }}>
+          {item.title ?? ""}
+        </Text>
+        <Text style={{ fontFamily: "Roboto_500Medium" }}>
+          {item.content ?? ""}
+        </Text>
+      </View>
+    </View>
+  );
+}

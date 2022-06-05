@@ -6,59 +6,47 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { theme } from "../../../theme";
 import { sdk } from "../../../core";
-import { TopBar } from "./TopBar";
-import { RecommendBooks } from "./Recommend";
-import { renderBookItem } from "./BookItem";
 import { SAMPLE_BOOKS } from "../../../core/const";
+import Header from "../../../components/Header";
+import { renderBookItem } from "../home/BookItem";
 
 const PAGE_SIZE = 20;
 
-const HomeScreen = ({ route }) => {
+const CategoryScreen = ({ route }) => {
   const inset = useSafeAreaInsets();
   const navigation = useNavigation();
-  const isFocused = useIsFocused();
   const [books, setBooks] = useState(SAMPLE_BOOKS);
-  const [recommendBooks, setRecommendBooks] = useState(SAMPLE_BOOKS);
-  const [keyword, setKeyword] = useState("");
   let [fontsLoaded] = useFonts(FONTS);
 
-  useEffect(() => {
-    sdk.getBooks(5, 5).then(({ data }) => { setRecommendBooks(data); })
-  }, []);
+  const { category } = route.params || {}
 
   useEffect(() => {
-    sdk.getBooks(10, 0, keyword).then(({ data }) => {
-      setBooks(data);
-    })
-  }, [keyword]);
+    sdk.filterCategory(category.id).then(({ data }) => { setBooks(data); })
+  }, []);
 
 
   const loadMoreBooks = async () => {
     console.log("load more books....");
-    sdk.getBooks(PAGE_SIZE, books.length, keyword).then(({ data }) => setBooks([...books, ...data]))
+    sdk.filterCategory(category.id, PAGE_SIZE, books.length).then(({ data }) => setBooks([...books, ...data]))
   }
 
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>
-      <TopBar keyword={keyword} handleKeyWord={setKeyword} />
+      <Header title={"Category: " + category.name} />
       {fontsLoaded && (
         <FlatList
           ListHeaderComponent={() => (
-            <View style={{ paddingHorizontal: 10 }}>
-              {keyword === "" ? <>
-                <RecommendBooks recommendBooks={recommendBooks} />
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "bold",
-                    fontFamily: "Oswald_700Bold",
-                  }}
-                >
-                  Latest update
-                </Text>
-                <View style={{ height: 10 }} />
-              </> : null}
-
+            <View style={{ paddingHorizontal: 15 }}>
+              <Text
+                style={{
+                  fontSize: 15,
+                  fontWeight: "bold",
+                  fontFamily: "Oswald_700Bold",
+                }}
+              >
+                {category.description}
+              </Text>
+              <View style={{ height: 10 }} />
             </View>
           )}
           data={books}
@@ -98,4 +86,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default CategoryScreen;

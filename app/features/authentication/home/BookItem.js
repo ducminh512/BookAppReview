@@ -1,11 +1,10 @@
-import { BASE_API_URL } from "../../share"
+import { round, toCoverUri } from "../../share"
 import React, { } from "react";
 import {
   Dimensions,
   Image,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 
@@ -14,90 +13,48 @@ import { routesName } from "../../../navigation/routes";
 const { width } = Dimensions.get("window");
 
 export const renderBookItem = (navigation) => ({ item, index }) => (
-  <View style={style.container} >
+  <View style={style.container} onTouchEnd={() => {
+    navigation.navigate(routesName.BOOK_DETAIL_SCREEN, { item });
+  }} >
     <Image
       resizeMode="cover"
       style={style.coverImg}
-      source={{ uri: `${BASE_API_URL}/${item["cover_url"]}` }}
+      source={{ uri: toCoverUri(item["cover_url"]), cache: "force-cache" }}
     />
 
     <View style={{ width: (width - 32) * 0.5, paddingLeft: 10 }}>
       <Text
-        style={{
-          fontSize: 19,
-          marginBottom: 10,
-          fontWeight: "bold",
-          fontFamily: "Oswald_700Bold",
-        }}
+        style={style.title}
         numberOfLines={3}
       >
         {item?.title}
       </Text>
+      <Text numberOfLines={2}>
+        <Text style={style.author} > {item?.author} </Text>
+      </Text>
       <Text
-        style={{
-          fontSize: 16,
-          marginBottom: 10,
-          fontFamily: "Oswald_500Medium",
-        }}
+        style={style.textNormal}
+        numberOfLines={1}
       >
-        by {item?.author}
+        Publish by {item?.publisher}
       </Text>
       <View
         style={{ flexDirection: "row", justifyContent: "space-between" }}
       >
-        <Text
-          style={{
-            fontSize: 16,
-            fontWeight: "600",
-            fontFamily: "Oswald_300Light",
-          }}
-        >
+        <Text style={style.textNormal} >
           Page: {item.pages || 0}
         </Text>
-        <Text
-          style={{
-            fontSize: 16,
-            fontWeight: "600",
-            marginRight: 5,
-            fontFamily: "Oswald_300Light",
-          }}
-        >
-          Rating: {item["avg_rate"] || "-" }
+        <Text style={style.textNormal} >
+          Avg rating: {round(item["rate_avg"])}
         </Text>
       </View>
-
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate(routesName.BOOK_DETAIL_SCREEN, { item });
-        }}
-        style={{
-          marginTop: 20,
-          width: 100,
-          height: 45,
-          borderColor: "red",
-          borderRadius: 100 / 2,
-          borderWidth: 1,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 18,
-            fontWeight: "600",
-            fontFamily: "Oswald_500Medium",
-          }}
-        >
-          Detail
-        </Text>
-      </TouchableOpacity>
     </View>
   </View>
 )
 
 const style = StyleSheet.create({
   container: {
-    width: width - 32,
+    width: width - 40,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -114,9 +71,26 @@ const style = StyleSheet.create({
     flexDirection: "row",
   },
   coverImg: {
-    width: (width - 32) * 0.5,
-    height: 240,
+    width: (width - 32) * 0.4,
+    height: 180,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
+  },
+  title: {
+    fontSize: 15,
+    marginBottom: 8,
+    fontWeight: "800",
+    fontFamily: "Oswald_700Bold",
+  },
+  author: {
+    fontSize: 13,
+    marginBottom: 10,
+    fontWeight: "700",
+    fontFamily: "Oswald_500Medium",
+  },
+  textNormal: {
+    fontSize: 12,
+    fontWeight: "600",
+    fontFamily: "Oswald_300Light",
   }
 })

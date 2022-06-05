@@ -1,34 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { routesName } from "./routes";
 import { unAuthentication } from "../features/unauthentication";
 import { NavigationContainer } from "@react-navigation/native";
 import BottomTabBars from "./bottomNavigation";
 import { bottom } from "../features/authentication";
-import { sdk } from "../core";
+import CategoryScreen from "../features/authentication/discovery/CategoryView";
+import SearchScreen from "../features/authentication/home/SearchView";
 const Stack = createStackNavigator();
 
 const RootStack = () => {
-  const [initialRoute, setInitialRoute] = useState(routesName.LOGIN_SCREEN);
-
-  useEffect(() => {
-    sdk.renewAccessToken()
-      .catch(_ => setInitialRoute(routesName.LOGIN_SCREEN))
-  }, [])
-
   return (
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
         }}
-        initialRouteName={initialRoute}
+        initialRouteName={routesName.LOGIN_SCREEN}
       >
         <Stack.Screen name={routesName.BOTTOM_BAR} component={BottomTabBars} />
 
         <Stack.Screen
           name={routesName.EDIT_PROFILE_SCREEN}
           component={bottom.EditProfileScreen}
+        />
+        <Stack.Screen
+          name={routesName.CATEGORY_DETAIL_SCREEN}
+          component={CategoryScreen}
+        />
+        <Stack.Screen
+          name={routesName.SEARCH_SCREEN}
+          component={SearchScreen}
         />
         <Stack.Screen
           name={routesName.CHANGE_PASSWORD_SCREEN}

@@ -43,7 +43,6 @@ const BottomTabBars = () => {
         component={bottom.HOME_SCREEN}
         options={{
           title: "",
-
           tabBarIcon: ({ color }) => (
             <Icon name="home" size={24} color={color} />
           ),
@@ -55,9 +54,18 @@ const BottomTabBars = () => {
         component={bottom.Favourite_Screen}
         options={{
           title: "",
-
           tabBarIcon: ({ color }) => (
-            <Icon name="heart" size={24} color={color} />
+            <Icon name="library" size={24} color={color} />
+          ),
+        }}
+      />
+      <BottomBarTab.Screen
+        name={"discovery"}
+        component={bottom.DiscoveryScreen}
+        options={{
+          title: "",
+          tabBarIcon: ({ color }) => (
+            <Icon name="search" size={24} color={color} />
           ),
         }}
       />

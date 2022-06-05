@@ -1,6 +1,6 @@
-import {useFonts, FONTS} from "../../share"
-import { useIsFocused, useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import { useFonts, FONTS } from "../../share"
+import { useFocusEffect, useIsFocused, useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -13,33 +13,47 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
+import { SAMPLE_BOOKS } from "../../../core/const";
+import { renderBookItem } from "../home/BookItem";
+import { sdk } from "../../../core";
 
 const { width } = Dimensions.get("window");
-let bookOptions = ["Want to Read", "Start Reading", "Read", "Favorite Book"];
+let bookmarkTypes = ["Wanna Read", "Reading", "Read", "Favorites"];
 
 const FavoriteScreen = () => {
   const inset = useSafeAreaInsets();
+  const [allBookmarks, setAllBookmarks] = useState([]);
+  const [books, setBooks] = useState(SAMPLE_BOOKS);
   let [fontsLoaded] = useFonts(FONTS);
   const navigation = useNavigation();
-  const isFocused = useIsFocused();
-  const [type, setType] = useState("Want to Read");
+  const [type, setType] = useState(0);
+
+  useFocusEffect(React.useCallback(() => {
+    sdk.getBookmarks().then(({ data }) => {
+      setAllBookmarks(data)
+      setBooks(data.filter(b => b["bookmark_type"] == type))
+    })
+  }, []))
+
+  useEffect(() => {
+    setBooks(allBookmarks.filter(b => b["bookmark_type"] == type))
+  }, [type, allBookmarks])
 
   const renderItemTab = (item, index) => {
     return (
       <TouchableOpacity
-        onPress={() => {
-          setType(item);
-        }}
+        onPress={() => { setType(index); }}
         key={index}
         style={{
           width: (width - 52) / 4,
           alignItems: "center",
           backgroundColor:
-            type === item ? theme.colors.white : theme.colors.blue,
+            type === index ? theme.colors.white : theme.colors.blue,
           justifyContent: "center",
-          height: 45,
+          height: 40,
           borderRadius: 8,
           marginRight: 5,
+          marginTop: 10,
           shadowColor: "#000",
           shadowOffset: {
             width: 0,
@@ -48,13 +62,13 @@ const FavoriteScreen = () => {
           shadowOpacity: 0.25,
           shadowRadius: 3.84,
 
-          elevation: 5,
+          elevation: 4,
         }}
       >
         <Text
           style={{
             fontFamily: "Oswald_500Medium",
-            color: type === item ? "black" : "white",
+            color: type === index ? "black" : "white",
           }}
         >
           {item}
@@ -63,139 +77,23 @@ const FavoriteScreen = () => {
     );
   };
 
-  const _renderItemBook = ({ item, index }) => {
-    return (
-      <View
-        style={{
-          width: width - 36,
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          marginVertical: 10,
-          borderRadius: 8,
-          elevation: 5,
-          paddingBottom: 10,
-          marginHorizontal: 2,
-          backgroundColor: "white",
-          flexDirection: "row",
-        }}
-      >
-        <Image
-          resizeMode="cover"
-          style={{
-            width: (width - 32) * 0.5,
-            height: 150,
-            borderTopLeftRadius: 8,
-            borderBottomLeftRadius: 8,
-          }}
-          source={{
-            uri: "https://cogaidiem.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg",
-          }}
-        />
-
-        <View style={{ width: (width - 32) * 0.5, paddingLeft: 4 }}>
-          <Text
-            style={{
-              fontSize: 19,
-              marginBottom: 10,
-              fontWeight: "bold",
-              fontFamily: "Oswald_700Bold",
-              maxWidth: (width - 32) * 0.45,
-            }}
-            numberOfLines={3}
-          >
-            title
-          </Text>
-          <Text
-            style={{
-              fontSize: 16,
-              marginBottom: 10,
-              fontFamily: "Oswald_500Medium",
-            }}
-            key={index}
-          >
-            by
-          </Text>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              flex: 1,
-              width: (width - 32) * 0.4,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "600",
-                fontFamily: "Oswald_300Light",
-              }}
-            >
-              Page: {0}
-            </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "600",
-                // marginRight: 5,
-                fontFamily: "Oswald_300Light",
-              }}
-            >
-              Rating: {0}
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate(routesName.BOOK_DETAIL_SCREEN, { item });
-            }}
-            style={{
-              marginTop: 10,
-              width: 100,
-              height: 45,
-              borderColor: "red",
-              borderRadius: 50 / 2,
-              borderWidth: 1,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 18,
-                fontWeight: "600",
-                fontFamily: "Oswald_500Medium",
-              }}
-            >
-              Detail
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
-
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>
       {fontsLoaded && (
-        <View style={{ paddingHorizontal: 16, flex: 1 }}>
-          <View style={{ flexDirection: "row" }}>
-            {bookOptions.map(renderItemTab)}
+        <View style={{ paddingHorizontal: 8, flex: 1 }}>
+          <View style={{ flexDirection: "row", marginLeft: 10 }}>
+            {bookmarkTypes.map(renderItemTab)}
           </View>
           <FlatList
             style={{ flex: 1 }}
             showsVerticalScrollIndicator={false}
-            data={[1, 2, 3, 4]}
-            renderItem={_renderItemBook}
+            data={books}
+            renderItem={renderBookItem(navigation)}
             keyExtractor={(item, index) => index.toString()}
+            ListFooterComponent={<View style={{ height: inset.bottom + 50 }} />}
           />
         </View>
       )}
-      <View style={{ height: inset.bottom + 100 }} />
     </View>
   );
 };

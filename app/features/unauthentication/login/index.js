@@ -13,7 +13,7 @@ import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
 import { loginSchema } from "./loginValidation";
 
-const DefaultLoginValue = { email: "user@gmail.com", password: "password" }
+const DefaultLoginValue = { email: "", password: "" }
 
 const LoginScreen = () => {
   const inset = useSafeAreaInsets();
@@ -33,15 +33,20 @@ const LoginScreen = () => {
     setIsLoadingLogin(true);
     Keyboard.dismiss();
 
-    sdk.login(email, password)
-      .then(() => navigation.navigate(routesName.BOTTOM_BAR))
-      .catch((err) => {
-        Alert.alert(
-          "Login failed!",
-          err.response.data.message,
-        )
-      })
-      .finally(setIsLoadingLogin(false));
+    try {
+      sdk.login(email, password)
+        .then(() => navigation.navigate(routesName.BOTTOM_BAR))
+        .catch((err) => {
+          Alert.alert(
+            "Login failed!",
+            err.response.data.message,
+          )
+        })
+    } catch (err) {
+      console.log("Login ERR: ", err);
+    } finally {
+      setIsLoadingLogin(false)
+    }
   });
 
   return (
@@ -141,9 +146,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   logo: {
-    width: 140,
+    width: 200,
     height: 140,
-    marginTop: 100,
+    marginTop: 50,
   },
   boxLogo: {
     alignItems: "center",

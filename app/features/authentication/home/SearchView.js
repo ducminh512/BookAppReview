@@ -1,5 +1,5 @@
 import { useFonts, FONTS } from "../../share";
-import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
@@ -7,23 +7,23 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { theme } from "../../../theme";
 import { sdk } from "../../../core";
 import { TopBar } from "./TopBar";
-import { RecommendBooks } from "./Recommend";
 import { renderBookItem } from "./BookItem";
 import { SAMPLE_BOOKS } from "../../../core/const";
+import Header from "../../../components/Header";
 
 const PAGE_SIZE = 20;
 
-const HomeScreen = ({ route }) => {
+const SearchScreen = ({ route }) => {
   const inset = useSafeAreaInsets();
   const navigation = useNavigation();
-  const isFocused = useIsFocused();
   const [books, setBooks] = useState(SAMPLE_BOOKS);
-  const [recommendBooks, setRecommendBooks] = useState(SAMPLE_BOOKS);
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(route.params.initialKeyword);
   let [fontsLoaded] = useFonts(FONTS);
 
   useEffect(() => {
-    sdk.getBooks(5, 5).then(({ data }) => { setRecommendBooks(data); })
+    sdk.getBooks(10, 0, keyword).then(({ data }) => {
+      setBooks(data);
+    })
   }, []);
 
   useEffect(() => {
@@ -40,27 +40,9 @@ const HomeScreen = ({ route }) => {
 
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>
-      <TopBar keyword={keyword} handleKeyWord={setKeyword} />
       {fontsLoaded && (
         <FlatList
-          ListHeaderComponent={() => (
-            <View style={{ paddingHorizontal: 10 }}>
-              {keyword === "" ? <>
-                <RecommendBooks recommendBooks={recommendBooks} />
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "bold",
-                    fontFamily: "Oswald_700Bold",
-                  }}
-                >
-                  Latest update
-                </Text>
-                <View style={{ height: 10 }} />
-              </> : null}
-
-            </View>
-          )}
+          ListHeaderComponent={<Header title={route.params.initialKeyword} />}
           data={books}
           renderItem={renderBookItem(navigation)}
           keyExtractor={(item, index) => `book-${item.id}`}
@@ -98,4 +80,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default SearchScreen;
