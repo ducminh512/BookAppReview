@@ -4,6 +4,7 @@ import Profile_Screen from "./profile";
 import EditProfileScreen from "./editProfile";
 import ChangePasswordScreen from "./changepassword";
 import BookDetail from "./bookDetail";
+import DiscoveryScreen from "./discovery";
 
 export const bottom = {
   HOME_SCREEN: HomeScreen,
@@ -12,4 +13,5 @@ export const bottom = {
   EditProfileScreen: EditProfileScreen,
   ChangePasswordScreen: ChangePasswordScreen,
   BookDetail: BookDetail,
+  DiscoveryScreen: DiscoveryScreen
 };

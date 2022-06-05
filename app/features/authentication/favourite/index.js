@@ -1,5 +1,5 @@
 import { useFonts, FONTS } from "../../share"
-import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -26,19 +26,18 @@ const FavoriteScreen = () => {
   const [books, setBooks] = useState(SAMPLE_BOOKS);
   let [fontsLoaded] = useFonts(FONTS);
   const navigation = useNavigation();
-  const isFocused = useIsFocused();
   const [type, setType] = useState(0);
 
-  useEffect(() => {
+  useFocusEffect(React.useCallback(() => {
     sdk.getBookmarks().then(({ data }) => {
       setAllBookmarks(data)
       setBooks(data.filter(b => b["bookmark_type"] == type))
     })
-  }, [])
+  }, []))
 
   useEffect(() => {
     setBooks(allBookmarks.filter(b => b["bookmark_type"] == type))
-  }, [type])
+  }, [type, allBookmarks])
 
   const renderItemTab = (item, index) => {
     return (
@@ -82,7 +81,7 @@ const FavoriteScreen = () => {
     <View style={[styles.container, { paddingTop: inset.top }]}>
       {fontsLoaded && (
         <View style={{ paddingHorizontal: 8, flex: 1 }}>
-          <View style={{ flexDirection: "row" }}>
+          <View style={{ flexDirection: "row", marginLeft: 10 }}>
             {bookmarkTypes.map(renderItemTab)}
           </View>
           <FlatList

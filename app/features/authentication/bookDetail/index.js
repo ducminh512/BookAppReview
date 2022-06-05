@@ -1,4 +1,4 @@
-import { useFonts, FONTS } from "../../share";
+import { useFonts, FONTS, timeDifference } from "../../share";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
@@ -11,7 +11,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Header from "../../../components/Header";
 import { sdk } from "../../../core";
 import { BookView } from "./BookView";
-import moment from "moment";
 
 
 const BookDetail = ({ route }) => {
@@ -92,30 +91,6 @@ export const renderComment = ({ item }) => (
     </View>
   </View>
 );
-
-function timeDifference(previous) {
-
-  var msPerMinute = 60 * 1000;
-  var msPerHour = msPerMinute * 60;
-  var msPerDay = msPerHour * 24;
-  var msPerMonth = msPerDay * 30;
-  var msPerYear = msPerDay * 365;
-
-  var elapsed = moment.now() - moment(previous).valueOf();
-
-  if (elapsed < msPerMinute)
-    return Math.round(elapsed / 1000) + ' seconds ago';
-  if (elapsed < msPerHour)
-    return Math.round(elapsed / msPerMinute) + ' minutes ago';
-  if (elapsed < msPerDay)
-    return Math.round(elapsed / msPerHour) + ' hours ago';
-  if (elapsed < msPerMonth)
-    return Math.round(elapsed / msPerDay) + ' days ago';
-  if (elapsed < msPerYear)
-    return + Math.round(elapsed / msPerMonth) + ' months ago';
-  return + Math.round(elapsed / msPerYear) + ' years ago';
-}
-
 
 export default BookDetail;
 const styles = StyleSheet.create({

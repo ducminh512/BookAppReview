@@ -1,5 +1,5 @@
 import Icons from "@expo/vector-icons/Ionicons";
-import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -26,12 +26,12 @@ const ProfileScreen = () => {
   let [fontsLoaded] = useFonts(FONTS);
   const navigation = useNavigation();
 
-  useEffect(() => {
+  useFocusEffect(React.useCallback(() => {
     sdk.getCurrentUserInfo().then(user => setInfo(user))
     sdk.getUserComments().then(({ data }) => {
       setComments(data)
     })
-  }, [])
+  }, []))
 
   return (
     <View style={[styles.container, { paddingTop: inset.top + 10 }]}>
@@ -45,7 +45,7 @@ const ProfileScreen = () => {
                   height: 80,
                   borderRadius: 80 / 2,
                 }}
-                source={{ uri: info["avatar_url"] ?? "", }}
+                source={{ uri: info["avatar_url"] ?? "https://freesvg.org/img/myAvatar.png", }}
               />
               <View
                 style={{
@@ -70,13 +70,13 @@ const ProfileScreen = () => {
               </View>
               <TouchableOpacity
                 onPress={() =>
-                  navigation.navigate(routesName.EDIT_PROFILE_SCREEN)
+                  navigation.navigate(routesName.EDIT_PROFILE_SCREEN, { info })
                 }
               >
                 <Icons name="create-outline" size={24} />
               </TouchableOpacity>
             </View>
-            <View style={{ marginHorizontal: 20, marginTop: 25 }}>
+            <View style={{ marginHorizontal: 20, marginTop: 15 }}>
               <Button
                 title={"Change Password"}
                 backgroundColor={theme.colors.orange}

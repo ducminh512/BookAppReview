@@ -13,21 +13,21 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../../components/Button";
 import Header from "../../../components/Header";
 import TextInputForm from "../../../components/TextInputForm";
+import { sdk } from "../../../core";
+import { Storage, StorageKeys } from "../../../core/storage";
 import { theme } from "../../../theme";
 
 const { width } = Dimensions.get("window");
 
 const EditProfileScreen = ({ route }) => {
-  const { profile } = route.params || {};
+  const { info } = route.params || {};
   const inset = useSafeAreaInsets();
-  const [info, setInfo] = useState([]);
-  const [username, setUserName] = useState(profile?.username);
-  const [address, setAddress] = useState(profile?.address);
-  const [phone, setPhone] = useState(profile?.phone);
-  const [age, setAge] = useState(profile?.age);
-  const [image, setImage] = useState(null);
+  const [name, setName] = useState(info?.name);
+  const [image, setImage] = useState(info ? info["avatar_url"] : "");
   const [isLoadingImage, setIsLoadingImage] = useState(false);
   const [isLoadingSave, setIsLoadingSave] = useState(false);
+
+  const navigation = useNavigation();
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -43,6 +43,14 @@ const EditProfileScreen = ({ route }) => {
       setImage(`${result.uri}`);
     }
   };
+
+  const save = () => {
+    sdk.updateAccountInfo(name)
+      .then((data) => {
+        Storage.storeData(data, StorageKeys.userInfo)
+        navigation.goBack()
+      })
+  }
 
   // console.log("info", info);
   return (
@@ -70,7 +78,7 @@ const EditProfileScreen = ({ route }) => {
               }}
               resizeMode="contain"
               source={{
-                uri: "https://freesvg.org/img/myAvatar.png",
+                uri: image,
               }}
             />
           </TouchableOpacity>
@@ -83,15 +91,15 @@ const EditProfileScreen = ({ route }) => {
               borderRadius: 4,
               paddingHorizontal: 12,
             }}
-            value={username}
-            label="Username"
-            onChangeText={(text) => setUserName(text)}
+            value={name}
+            label="Name"
+            onChangeText={(text) => setName(text)}
           />
           <View style={{ height: 10 }} />
           <Button
             isLoading={isLoadingImage}
             title="Save"
-            onPress={() => {}}
+            onPress={save}
             backgroundColor={theme.colors.orange}
           />
         </View>

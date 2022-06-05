@@ -17,6 +17,8 @@ import { theme } from "../../../theme";
 import { sdk } from "../../../core";
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
+import { routesName } from "../../../navigation/routes";
+import { CATEGORIES } from "../../../core/const";
 
 const { width } = Dimensions.get("window");
 
@@ -66,14 +68,10 @@ export const BookView = ({ infoBook, handleNewComment }) => {
 
   const updateRate = (score) => {
     setRateScore(score)
-    if (rateId === null) {
-      sdk.rateBook({
-        "score": score,
-        "book_id": infoBook.id
-      }).then(data => setRateId(data.id))
-      return
-    }
-    sdk.updateRate(rateId, score)
+    sdk.rateBook({
+      "score": score,
+      "book_id": infoBook.id
+    }).then(data => setRateId(data.id))
   }
 
 
@@ -138,13 +136,11 @@ export const BookView = ({ infoBook, handleNewComment }) => {
 
       <View style={{ marginHorizontal: 20, marginTop: 5 }}>
         <Text style={{ fontFamily: "Roboto_500Medium", fontSize: 15 }}>
-          <Text>
-            {showSynopsis
-              ? infoBook.description
-              : infoBook.description?.slice(0, 100) + "..."}
-            <Text style={styles.showMore} onPress={showFullSynopsis}>
-              {showSynopsis ? " Show less" : " Show more"}
-            </Text>
+          {showSynopsis
+            ? infoBook.description
+            : infoBook.description?.slice(0, 100) + "..."}
+          <Text style={styles.showMore} onPress={showFullSynopsis}>
+            {showSynopsis ? " Show less" : " Show more"}
           </Text>
           {"\n"}
         </Text>
@@ -156,7 +152,7 @@ export const BookView = ({ infoBook, handleNewComment }) => {
             </Text>
             <Text style={{ fontSize: 17, fontFamily: "Roboto_500Medium" }}>Publishers: </Text>
             <View style={styles.tags}>
-              {tags(infoBook.publisher)}
+              {tags(navigation, infoBook.publisher)}
             </View>
           </View>
           <View style={{ width: "50%" }}>
@@ -165,14 +161,14 @@ export const BookView = ({ infoBook, handleNewComment }) => {
             </Text>
             <Text style={{ fontSize: 17, fontFamily: "Roboto_500Medium" }}>Authors: </Text>
             <View style={styles.tags}>
-              {tags(infoBook.author)}
+              {tags(navigation, infoBook.author)}
             </View>
           </View>
         </View>
 
         <Text style={{ fontSize: 17, fontFamily: "Roboto_500Medium" }}>Categories: </Text>
         <View style={styles.tags}>
-          {categoryTags(infoBook.categories)}
+          {categoryTags(navigation, infoBook.categories)}
         </View>
 
         <Text style={{ fontSize: 17, fontFamily: "Roboto_500Medium", marginTop: 10 }}>
@@ -248,7 +244,7 @@ export const BookView = ({ infoBook, handleNewComment }) => {
   );
 };
 
-const tags = (str = "") => {
+const tags = (navigation, str = "") => {
   const tags = []
   if (typeof (str) != 'string') {
     return <></>
@@ -259,6 +255,9 @@ const tags = (str = "") => {
       <TouchableOpacity
         key={`publisher-${tags.length}`}
         style={{ backgroundColor: '#808080', padding: 5, borderRadius: 2, margin: 3 }}
+        onPress={() => navigation.navigate(routesName.SEARCH_SCREEN, {
+          initialKeyword: s
+        })}
       >
         <Text style={{ color: 'white' }} >{s}</Text>
       </TouchableOpacity>)
@@ -266,20 +265,21 @@ const tags = (str = "") => {
   return tags
 }
 
-const categoryTags = (str = "") => {
+const categoryTags = (navigation, str = "") => {
   const tags = []
   if (typeof (str) != 'string') {
     return <></>
   }
   str.split(",").map((s) => {
     s = s.trim()
-    s = sdk.getCategoryName(parseInt(s))
+    const category = CATEGORIES[parseInt(s) - 1]
     tags.push(
       <TouchableOpacity
         key={`category-${tags.length}`}
         style={{ backgroundColor: '#808080', padding: 5, borderRadius: 2, margin: 3 }}
+        onPress={() => navigation.navigate(routesName.CATEGORY_DETAIL_SCREEN, { category })}
       >
-        <Text style={{ color: 'white' }} >{s}</Text>
+        <Text style={{ color: 'white' }} >{category.name}</Text>
       </TouchableOpacity>)
   })
   return tags

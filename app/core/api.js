@@ -90,10 +90,17 @@ export async function getUserComments() {
     }
   })
 }
-
-export async function getBookmarks() {
+export async function updateAccountInfo(name) {
   const userInfo = await Storage.getData(StorageKeys.userInfo);
-  return await makeGetReq(`/accounts/${userInfo.id}/bookmarks`, { auth: true })({ params: {} })
+  return await makeUpdateReq(`/accounts/${userInfo.id}`)({
+    name
+  })
+}
+export async function updateAccountPassword(password) {
+  const userInfo = await Storage.getData(StorageKeys.userInfo);
+  return await makeUpdateReq(`/accounts/${userInfo.id}/password`)({
+    password
+  })
 }
 
 // auth
@@ -103,6 +110,10 @@ export const _refreshToken = makePostReq("/auth/refresh");
 export const createAccount = makePostReq("/accounts");
 
 // bookmarks
+export async function getBookmarks() {
+  const userInfo = await Storage.getData(StorageKeys.userInfo);
+  return await makeGetReq(`/accounts/${userInfo.id}/bookmarks`, { auth: true })({ params: {} })
+}
 export const addBookmark = makePostReq("/bookmarks", { auth: true });
 export async function checkBookmark(bookId) {
   const userInfo = await Storage.getData(StorageKeys.userInfo);
@@ -123,7 +134,7 @@ export async function updateBookmark(bookmarkId, bookmarkType) {
 }
 
 // rates
-export const rateBook = makePostReq("/rates", {auth: true});
+export const rateBook = makePostReq("/rates", { auth: true });
 export async function checkRate(bookId) {
   const userInfo = await Storage.getData(StorageKeys.userInfo);
   return await makeGetReq("/rates", { auth: true })({
@@ -139,5 +150,15 @@ export async function updateRate(rateId, newScore) {
   })
 }
 
-
+// comments
 export const addComment = makePostReq("/comments", { auth: true });
+
+// categories
+export async function filterCategory(categoryId, limit = 10, offset = 0) {
+  return await makeGetReq(`/categories/${categoryId}/books`)({
+    params: {
+      limit,
+      offset,
+    }
+  })
+}
