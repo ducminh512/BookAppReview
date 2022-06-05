@@ -53,12 +53,12 @@ const Button = ({ title, backgroundColor, onPress, disabled, isLoading }) => {
       style={{
         flexDirection: "row",
         justifyContent: "center",
-        height: 50,
+        height: 40,
         alignItems: "center",
         width: "100%",
         backgroundColor,
         borderRadius: 4,
-        marginVertical: 20,
+        marginVertical: 5,
       }}
     >
       {isLoading ? <ActivityIndicator size={24} color="#fff" /> : null}

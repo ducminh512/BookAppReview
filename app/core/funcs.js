@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { api } from "./api";
-import { _TOKEN_RENEW_INTERVAL } from "./const";
+import * as api from "./api";
+import { CATEGORIES, _TOKEN_RENEW_INTERVAL } from "./const";
 import { Storage, StorageKeys } from "./storage";
 
 let renewAccessTokenTaskId = null;
@@ -16,8 +16,6 @@ export async function setRenewAccessTokenLoop() {
   }
 
   async function _renewAccessToken(refreshToken) {
-    console.debug("Refreshing access token ...");
-
     async function clear() {
       clearInterval(renewAccessTokenTaskId);
       await AsyncStorage.multiRemove([
@@ -39,7 +37,7 @@ export async function setRenewAccessTokenLoop() {
       .catch((err) => clear().then(() => { throw err }))
   }
 
-  renewAccessTokenTaskId = setInterval(() => _renewAccessToken(refreshToken), 1000 * 15)
+  renewAccessTokenTaskId = setInterval(() => _renewAccessToken(refreshToken), _TOKEN_RENEW_INTERVAL)
 }
 
 export async function login(email, password) {
@@ -64,4 +62,13 @@ export async function logout() {
     StorageKeys.refreshToken,
     StorageKeys.userInfo
   ])
+}
+
+const CATEGORY_NAMES = CATEGORIES.reduce((categories, record) => {
+  categories[record.id] = record.name;
+  return categories
+}, {})
+
+export function getCategoryName(id) {
+  return CATEGORY_NAMES[id] ?? ""
 }

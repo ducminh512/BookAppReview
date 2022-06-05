@@ -16,7 +16,6 @@ import { sdk } from "../../../core";
 import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
 import { FONTS, useFonts } from "../../share";
-import { renderComment } from "../bookDetail";
 const { width } = Dimensions.get("window");
 
 const ProfileScreen = () => {
@@ -29,7 +28,10 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     sdk.getCurrentUserInfo().then(user => setInfo(user))
-    sdk.getUserComments().then(({data}) => setComments(data))
+    sdk.getUserComments().then(({data}) => {
+      console.log("comments: ", data);
+      setComments(data)
+    })
   }, [])
 
   return (
@@ -44,7 +46,7 @@ const ProfileScreen = () => {
                   height: 90,
                   borderRadius: 90 / 2,
                 }}
-                source={{ uri: info["avatar_url"], }}
+                source={{ uri: info["avatar_url"] ?? "", }}
               />
               <View
                 style={{
@@ -112,3 +114,40 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.white,
   },
 });
+
+export const renderComment = ({ item }) => {
+  console.log(item);
+  return (
+  <View
+    style={{
+      marginHorizontal: 16,
+      padding: 12,
+      flexDirection: "row",
+      marginVertical: 5,
+      backgroundColor: "white",
+      borderRadius: 8,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    }}
+  >
+    {/* <Image
+      source={{ uri: `${BASE_API_URL}/${item["cover_url"] ?? ""}` }}
+      style={{ height: 50, width: 50, borderRadius: 50 / 2 }}
+    /> */}
+    <View style={{ paddingLeft: 10, paddingRight: 40 }}>
+      <Text style={{ fontFamily: "Roboto_700Bold" }}>
+        {item.title ?? ""}
+      </Text>
+      <Text style={{ fontFamily: "Roboto_500Medium" }}>
+        {item.content ?? ""}
+      </Text>
+    </View>
+  </View>
+);
+}

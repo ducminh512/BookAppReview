@@ -18,14 +18,17 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [books, setBooks] = useState(SAMPLE_BOOKS);
+  const [recommendBooks, setRecommendBooks] = useState(SAMPLE_BOOKS);
   const [keyword, setKeyword] = useState("");
   let [fontsLoaded] = useFonts(FONTS);
 
   useEffect(() => {
     sdk.getBooks().then(({ data }) => {
-      console.debug(data[0]);
+      // console.debug(data[0]);
       setBooks(data);
     })
+
+    sdk.getBooks(5, 5).then(({ data }) => { setRecommendBooks(data); })
   }, []);
 
   useEffect(() => {
@@ -46,17 +49,17 @@ const HomeScreen = () => {
       {fontsLoaded && (
         <FlatList
           ListHeaderComponent={() => (
-            <View style={{ paddingHorizontal: 16 }}>
+            <View style={{ paddingHorizontal: 10 }}>
               {keyword === "" ? <>
-                <RecommendBooks />
+                <RecommendBooks recommendBooks={recommendBooks}/>
                 <Text
                   style={{
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: "bold",
                     fontFamily: "Oswald_700Bold",
                   }}
                 >
-                  New Books
+                  Latest update
                 </Text>
                 <View style={{ height: 10 }} />
               </> : null}

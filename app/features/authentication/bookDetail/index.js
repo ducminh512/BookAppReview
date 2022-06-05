@@ -9,9 +9,9 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Header from "../../../components/Header";
-import { theme } from "../../../theme";
 import { sdk } from "../../../core";
 import { BookView } from "./BookView";
+import moment from "moment";
 
 
 const BookDetail = ({ route }) => {
@@ -20,22 +20,15 @@ const BookDetail = ({ route }) => {
   const { item } = route.params || {};
   const [infoBook, setInfoBook] = useState(item);
   const [comments, setComments] = useState([]);
-  // const [reviewList, setReviewList] = useState([]);
-
-  const [review, setReview] = useState("");
-
-  let [fontsLoaded] = useFonts(FONTS);
-  // console.log({ bookAll });
 
   useEffect(() => {
-    sdk.getBookDetail(item.id).then(book => setInfoBook(book))
-  }, []);
-
-  // const lastIndex = comments.length === 0 ? 1e9 : comments[comments.length - 1].id
-
-  useEffect(() => {
-    sdk.getBookComments(item.id, 10)
-      .then(({ data }) => setComments([...comments, ...data]))
+    sdk.getBookDetail(item.id).then(book => {
+      setInfoBook(book)
+    }).catch(err => console.log("fetch book detail error!"))
+      .then(
+        sdk.getBookComments(item.id, 10)
+          .then(({ data }) => setComments([...comments, ...data]))
+      )
   }, [])
 
   return (
@@ -54,6 +47,9 @@ const BookDetail = ({ route }) => {
         data={comments}
         renderItem={renderComment}
         keyExtractor={(item, index) => index.toString()}
+        ListFooterComponent={()=>(
+          <View style={{height: 15}} />
+        )}
       />
 
     </View>
@@ -63,11 +59,10 @@ const BookDetail = ({ route }) => {
 export const renderComment = ({ item }) => (
   <View
     style={{
-      marginHorizontal: 16,
-      padding: 12,
+      marginHorizontal: 18,
+      padding: 10,
       flexDirection: "row",
-      marginVertical: 5,
-      backgroundColor: "white",
+      marginVertical: 2,
       borderRadius: 8,
       shadowColor: "#000",
       shadowOffset: {
@@ -77,16 +72,19 @@ export const renderComment = ({ item }) => (
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
 
-      elevation: 5,
+      elevation: 2,
     }}
   >
     <Image
       source={{ uri: item["avatar_url"], }}
-      style={{ height: 50, width: 50, borderRadius: 50 / 2 }}
+      style={{ height: 40, width: 40, borderRadius: 50 / 2 }}
     />
     <View style={{ paddingLeft: 10, paddingRight: 40 }}>
-      <Text style={{ fontFamily: "Roboto_700Bold" }}>
-        {item.username}
+      <Text>
+        <Text style={{ fontFamily: "Roboto_700Bold" }}>
+          {item.username}
+        </Text>
+        {" " + timeDifference(item["created_at"])}
       </Text>
       <Text style={{ fontFamily: "Roboto_500Medium" }}>
         {item.content}
@@ -95,11 +93,35 @@ export const renderComment = ({ item }) => (
   </View>
 );
 
+function timeDifference(previous) {
+
+  var msPerMinute = 60 * 1000;
+  var msPerHour = msPerMinute * 60;
+  var msPerDay = msPerHour * 24;
+  var msPerMonth = msPerDay * 30;
+  var msPerYear = msPerDay * 365;
+
+  var elapsed = moment.now() -  moment(previous).valueOf();
+
+  if (elapsed < msPerMinute)
+    return Math.round(elapsed / 1000) + ' seconds ago';
+  if (elapsed < msPerHour)
+    return Math.round(elapsed / msPerMinute) + ' minutes ago';
+  if (elapsed < msPerDay)
+    return Math.round(elapsed / msPerHour) + ' hours ago';
+  if (elapsed < msPerMonth)
+    return Math.round(elapsed / msPerDay) + ' days ago';
+  if (elapsed < msPerYear)
+    return + Math.round(elapsed / msPerMonth) + ' months ago';
+  return + Math.round(elapsed / msPerYear) + ' years ago';
+}
+
+
 export default BookDetail;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.white,
+    backgroundColor: "#FDF5E6",
   },
   imageContainer: {
     display: "flex",

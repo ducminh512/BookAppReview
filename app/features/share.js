@@ -21,8 +21,9 @@ import {
   Oswald_600SemiBold,
   Oswald_700Bold,
 } from "@expo-google-fonts/oswald";
+import { sdk } from "../core";
 
-export {useFonts};
+export { useFonts };
 
 export const FONTS = {
   Roboto_100Thin,
@@ -45,13 +46,19 @@ export const FONTS = {
   Oswald_700Bold,
 }
 
-export const BASE_API_URL = "https://api.mybooklist.ndtai.me"
-
 export const BOOKMARK_OPTIONS = [
-  "Want to Read",
-  "Start Reading",
+  "Wanna read",
+  "Reading",
   "Read",
-  "Favorite Book",
-  "Cancel Favorite Book",
+  "Favorite",
+  "Remove from library",
   "Cancel",
 ];
+
+export const shortenString = (str = "", len) => {
+  if (str.length < len + 3) return str;
+  return str.substring(0, len) + "..."
+}
+
+export const toCoverUri = (uri) => `${sdk.BASE_API_URL}/covers/${uri}`
+export const toImageUri = (uri) => `${sdk.BASE_API_URL}/covers/${uri}`

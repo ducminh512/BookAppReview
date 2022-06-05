@@ -1,8 +1,7 @@
 import axios from "axios"
 import qs from 'qs'
+import { BASE_API_URL } from "./const";
 import { Storage, StorageKeys } from "./storage";
-
-export const BASE_API_URL = "https://api.mybooklist.ndtai.me";
 
 const authHeader = (accessToken) => ({
   Authorization: `Bearer ${accessToken}`
@@ -35,7 +34,8 @@ function makeGetReq(uri, conf = { auth: false }) {
 }
 
 
-async function getBooks(limit = 20, offset = 0, query = "") {
+// books
+export async function getBooks(limit = 20, offset = 0, query = "") {
   return await makeGetReq("/books")({
     params: {
       "page_size": limit,
@@ -45,11 +45,11 @@ async function getBooks(limit = 20, offset = 0, query = "") {
   })
 }
 
-async function getBookDetail(id) {
-  return await makeGetReq(`/books/${id}`)()
+export async function getBookDetail(id) {
+  return await makeGetReq(`/books/${id}`)({ params: {} })
 }
 
-async function getBookComments(bookId, limit = 10, lastId = 1e9) {
+export async function getBookComments(bookId, limit = 10, lastId = 1e9) {
   return await makeGetReq(`/books/${bookId}/comments`)({
     params: {
       "last_id": lastId,
@@ -58,7 +58,8 @@ async function getBookComments(bookId, limit = 10, lastId = 1e9) {
   })
 }
 
-async function getUserComments() {
+// accounts
+export async function getUserComments() {
   const userInfo = await Storage.getData(StorageKeys.userInfo);
   return await makeGetReq(`/accounts/${userInfo.id}/comments`, { auth: true })({
     params: {
@@ -67,19 +68,23 @@ async function getUserComments() {
   })
 }
 
-export const api = {
-  _login: makePostReq("/auth/login"),
-  _refreshToken: makePostReq("/auth/refresh"),
-
-  getBooks,
-  getBookComments,
-  getBookDetail,
-  getUserComments,
-
-  createAccount: makePostReq("/accounts"),
-  bookmarkBook: makePostReq("/bookmarks"),
-  rateBook: makePostReq("/rates"),
-  addComment: makePostReq("/comments", { auth: true }),
-  addBookmark: makePostReq("/bookmarks", { auth: true }),
-  createAccount: makePostReq("/accounts")
+export async function getBookmarks() {
+  const userInfo = await Storage.getData(StorageKeys.userInfo);
+  return await makeGetReq(`/accounts/${userInfo.id}/bookmarks`, { auth: true })({ params: {} })
 }
+
+// auth
+export const _login = makePostReq("/auth/login");
+export const _refreshToken = makePostReq("/auth/refresh");
+
+export const createAccount = makePostReq("/accounts");
+
+// bookmarks
+export const addBookmark = makePostReq("/bookmarks", { auth: true });
+export const bookmarkBook = makePostReq("/bookmarks");
+
+
+export const rateBook = makePostReq("/rates");
+
+
+export const addComment = makePostReq("/comments", { auth: true });
