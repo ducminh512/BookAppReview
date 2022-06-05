@@ -24,10 +24,10 @@ const SignUpScreen = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      username: "Nguyễn An",
-      email: "user@gmail.com",
-      password: "password",
-      passwordConfirmation: "password",
+      username: "",
+      email: "",
+      password: "",
+      passwordConfirmation: "",
     },
     mode: "onChange",
     resolver: yupResolver(signupSchema),

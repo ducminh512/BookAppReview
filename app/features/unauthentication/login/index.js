@@ -13,7 +13,7 @@ import { routesName } from "../../../navigation/routes";
 import { theme } from "../../../theme";
 import { loginSchema } from "./loginValidation";
 
-const DefaultLoginValue = { email: "user@gmail.com", password: "password" }
+const DefaultLoginValue = { email: "", password: "" }
 
 const LoginScreen = () => {
   const inset = useSafeAreaInsets();

@@ -16,7 +16,7 @@ export const RecommendBooks = ({recommendBooks}) => {
   return (<>
     <View style={{ height: 10 }} />
     <Text style={styles.recommendBookTitle} >
-      Highest Rates
+      Recommended books
     </Text>
 
     <View style={{ height: 5 }} />

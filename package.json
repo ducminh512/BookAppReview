@@ -44,7 +44,8 @@
     "yup": "^0.32.11",
     "webpack-dev-server": "~3.11.0",
     "@expo/webpack-config": "~0.16.2",
-    "expo-linear-gradient": "~11.3.0"
+    "expo-linear-gradient": "~11.3.0",
+    "expo-updates": "~0.13.2"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
