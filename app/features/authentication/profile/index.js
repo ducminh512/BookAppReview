@@ -28,23 +28,22 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     sdk.getCurrentUserInfo().then(user => setInfo(user))
-    sdk.getUserComments().then(({data}) => {
-      console.log("comments: ", data);
+    sdk.getUserComments().then(({ data }) => {
       setComments(data)
     })
   }, [])
 
   return (
-    <View style={[styles.container, { paddingTop: inset.top }]}>
+    <View style={[styles.container, { paddingTop: inset.top + 10 }]}>
       <ScrollView>
         {fontsLoaded && (
           <>
             <View style={{ flexDirection: "row", paddingHorizontal: 16 }}>
               <Image
                 style={{
-                  width: 90,
-                  height: 90,
-                  borderRadius: 90 / 2,
+                  width: 80,
+                  height: 80,
+                  borderRadius: 80 / 2,
                 }}
                 source={{ uri: info["avatar_url"] ?? "", }}
               />
@@ -93,8 +92,8 @@ const ProfileScreen = () => {
                   navigation.navigate(routesName.LOGIN_SCREEN)
                 }}
               />
-              <Text style={{ fontFamily: "Oswald_700Bold", fontSize: 20 }}>
-                My Reviews
+              <Text style={{ fontFamily: "Oswald_700Bold", fontSize: 18 }}>
+                Recent comments
               </Text>
               {<View>{comments.map(renderComment)}</View>}
             </View>
@@ -115,39 +114,40 @@ const styles = StyleSheet.create({
   },
 });
 
-export const renderComment = ({ item }) => {
+export const renderComment = (item, index) => {
   console.log(item);
+  item = item ?? {}
   return (
-  <View
-    style={{
-      marginHorizontal: 16,
-      padding: 12,
-      flexDirection: "row",
-      marginVertical: 5,
-      backgroundColor: "white",
-      borderRadius: 8,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation: 5,
-    }}
-  >
-    {/* <Image
+    <View
+      style={{
+        padding: 8,
+        flexDirection: "row",
+        marginVertical: 5,
+        backgroundColor: "white",
+        borderRadius: 8,
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+      }}
+      key={`comment-${index}`}
+    >
+      {/* <Image
       source={{ uri: `${BASE_API_URL}/${item["cover_url"] ?? ""}` }}
       style={{ height: 50, width: 50, borderRadius: 50 / 2 }}
     /> */}
-    <View style={{ paddingLeft: 10, paddingRight: 40 }}>
-      <Text style={{ fontFamily: "Roboto_700Bold" }}>
-        {item.title ?? ""}
-      </Text>
-      <Text style={{ fontFamily: "Roboto_500Medium" }}>
-        {item.content ?? ""}
-      </Text>
+      <View style={{ paddingLeft: 10, paddingRight: 40 }}>
+        <Text style={{ fontFamily: "Roboto_700Bold" }}>
+          {item.title ?? ""}
+        </Text>
+        <Text style={{ fontFamily: "Roboto_500Medium" }}>
+          {item.content ?? ""}
+        </Text>
+      </View>
     </View>
-  </View>
-);
+  );
 }

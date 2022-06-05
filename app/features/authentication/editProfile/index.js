@@ -19,8 +19,6 @@ const { width } = Dimensions.get("window");
 
 const EditProfileScreen = ({ route }) => {
   const { profile } = route.params || {};
-  const navigation = useNavigation();
-  const isFocused = useIsFocused();
   const inset = useSafeAreaInsets();
   const [info, setInfo] = useState([]);
   const [username, setUserName] = useState(profile?.username);
@@ -90,44 +88,6 @@ const EditProfileScreen = ({ route }) => {
             onChangeText={(text) => setUserName(text)}
           />
           <View style={{ height: 10 }} />
-          <TextInputForm
-            placeholder={"Address"}
-            style={{
-              borderWidth: 1,
-              borderColor: theme.colors.placeholder,
-              borderRadius: 4,
-              paddingHorizontal: 12,
-            }}
-            value={address}
-            label="Address"
-            onChangeText={(text) => setAddress(text)}
-          />
-          <View style={{ height: 10 }} />
-          <TextInputForm
-            placeholder={"Phone"}
-            style={{
-              borderWidth: 1,
-              borderColor: theme.colors.placeholder,
-              borderRadius: 4,
-              paddingHorizontal: 12,
-            }}
-            value={phone}
-            label="Phone"
-            onChangeText={(text) => setPhone(text)}
-          />
-          <View style={{ height: 10 }} />
-          <TextInputForm
-            placeholder={"Age"}
-            style={{
-              borderWidth: 1,
-              borderColor: theme.colors.placeholder,
-              borderRadius: 4,
-              paddingHorizontal: 12,
-            }}
-            value={age}
-            label="Age"
-            onChangeText={(text) => setAge(text)}
-          />
           <Button
             isLoading={isLoadingImage}
             title="Save"

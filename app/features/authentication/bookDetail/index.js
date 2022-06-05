@@ -35,7 +35,7 @@ const BookDetail = ({ route }) => {
     <View style={[styles.container, { paddingTop: inset.top }]}>
       <Header title="Book detail" />
       <FlatList
-        ListHeaderComponent={() => (
+        ListHeaderComponent={
           <BookView
             infoBook={infoBook}
             handleNewComment={cmt => {
@@ -43,13 +43,13 @@ const BookDetail = ({ route }) => {
               setComments([cmt, ...comments])
             }}
           />
-        )}
+        }
         data={comments}
         renderItem={renderComment}
         keyExtractor={(item, index) => index.toString()}
-        ListFooterComponent={()=>(
-          <View style={{height: 15}} />
-        )}
+        ListFooterComponent={
+          <View style={{ height: 15 }} />
+        }
       />
 
     </View>
@@ -101,7 +101,7 @@ function timeDifference(previous) {
   var msPerMonth = msPerDay * 30;
   var msPerYear = msPerDay * 365;
 
-  var elapsed = moment.now() -  moment(previous).valueOf();
+  var elapsed = moment.now() - moment(previous).valueOf();
 
   if (elapsed < msPerMinute)
     return Math.round(elapsed / 1000) + ' seconds ago';

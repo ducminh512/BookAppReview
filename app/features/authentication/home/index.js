@@ -23,11 +23,6 @@ const HomeScreen = () => {
   let [fontsLoaded] = useFonts(FONTS);
 
   useEffect(() => {
-    sdk.getBooks().then(({ data }) => {
-      // console.debug(data[0]);
-      setBooks(data);
-    })
-
     sdk.getBooks(5, 5).then(({ data }) => { setRecommendBooks(data); })
   }, []);
 

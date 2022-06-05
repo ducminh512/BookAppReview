@@ -1,4 +1,4 @@
-import { toCoverUri } from "../../share"
+import { round, toCoverUri } from "../../share"
 import React, { } from "react";
 import {
   Dimensions,
@@ -45,7 +45,7 @@ export const renderBookItem = (navigation) => ({ item, index }) => (
           Page: {item.pages || 0}
         </Text>
         <Text style={style.textNormal} >
-          Avg rating: {item["rate_avg"]}
+          Avg rating: {round(item["rate_avg"])}
         </Text>
       </View>
     </View>

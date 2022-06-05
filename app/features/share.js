@@ -62,3 +62,4 @@ export const shortenString = (str = "", len) => {
 
 export const toCoverUri = (uri) => `${sdk.BASE_API_URL}/covers/${uri}`
 export const toImageUri = (uri) => `${sdk.BASE_API_URL}/covers/${uri}`
+export const round = (rate) => (Math.round(rate * 100) / 100).toFixed(2);

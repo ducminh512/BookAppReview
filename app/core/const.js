@@ -13,7 +13,7 @@ export const SAMPLE_BOOKS = [
     "pages": 354,
     "publisher": "Springer-Verlag Berlin Heidelberg",
     "rate_count": 0,
-    "rate_sum": 0,
+    "rate_avg": 0,
     "title": "Power Sums, Gorenstein Algebras, and Determinantal Loci"
   },
   {
@@ -26,7 +26,7 @@ export const SAMPLE_BOOKS = [
     "pages": 365,
     "publisher": "Springer-Verlag",
     "rate_count": 0,
-    "rate_sum": 0,
+    "rate_avg": 0,
     "title": "Algebraic geometry: an introduction to birational geometry of algebraic varieties"
   },
 ]

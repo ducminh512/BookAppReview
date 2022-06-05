@@ -15,7 +15,7 @@ function makePostReq(uri, conf = { auth: false }) {
     const postData = qs.stringify(data);
     return await axios.post(url, postData, { headers: authHeader(accessToken) })
       .then(res => res.data)
-      .catch(err => { console.debug("Error response: " + err.response.data); throw err })
+      .catch(err => { console.debug("Error response: " + JSON.stringify(err.response.data)); throw err })
   }
 }
 
@@ -29,10 +29,33 @@ function makeGetReq(uri, conf = { auth: false }) {
       headers: authHeader(accessToken)
     })
       .then(res => res.data)
-      .catch(err => { console.error(err.response.data); throw err })
+      .catch(err => { console.debug("Error response: " + JSON.stringify(err.response.data)); throw err })
   }
 }
 
+function makeUpdateReq(uri) {
+  const url = BASE_API_URL + uri;
+  return async function (data) {
+    console.debug("sending UPDATE request to " + url)
+    const accessToken = await Storage.getData(StorageKeys.accessToken);
+    const patchData = qs.stringify(data);
+    return await axios.patch(url, patchData, { headers: authHeader(accessToken) })
+      .then(res => res.data)
+      .catch(err => { console.debug("Error response: " + JSON.stringify(err.response.data)); throw err })
+  }
+}
+
+function makeDeleteReq(uri) {
+  const url = BASE_API_URL + uri;
+  return async function () {
+    console.debug("sending DELETE request to " + url)
+    const accessToken = await Storage.getData(StorageKeys.accessToken);
+    return await axios.delete(url, {
+      headers: authHeader(accessToken)
+    })
+      .catch(err => { console.debug("Error response: " + JSON.stringify(err.response.data)); throw err })
+  }
+}
 
 // books
 export async function getBooks(limit = 20, offset = 0, query = "") {
@@ -63,7 +86,7 @@ export async function getUserComments() {
   const userInfo = await Storage.getData(StorageKeys.userInfo);
   return await makeGetReq(`/accounts/${userInfo.id}/comments`, { auth: true })({
     params: {
-      "page_size": 1e9
+      "page_size": 15
     }
   })
 }
@@ -81,10 +104,40 @@ export const createAccount = makePostReq("/accounts");
 
 // bookmarks
 export const addBookmark = makePostReq("/bookmarks", { auth: true });
-export const bookmarkBook = makePostReq("/bookmarks");
+export async function checkBookmark(bookId) {
+  const userInfo = await Storage.getData(StorageKeys.userInfo);
+  return await makeGetReq("/bookmarks", { auth: true })({
+    params: {
+      "account_id": userInfo.id,
+      "book_id": bookId,
+    }
+  })
+}
+export async function deleteBookmark(bookmarkId) {
+  return await makeDeleteReq(`/bookmarks/${bookmarkId}`)()
+}
+export async function updateBookmark(bookmarkId, bookmarkType) {
+  return await makeUpdateReq(`/bookmarks/${bookmarkId}`)({
+    "bookmark_type": bookmarkType
+  })
+}
 
-
-export const rateBook = makePostReq("/rates");
+// rates
+export const rateBook = makePostReq("/rates", {auth: true});
+export async function checkRate(bookId) {
+  const userInfo = await Storage.getData(StorageKeys.userInfo);
+  return await makeGetReq("/rates", { auth: true })({
+    params: {
+      "account_id": userInfo.id,
+      "book_id": bookId,
+    }
+  })
+}
+export async function updateRate(rateId, newScore) {
+  return await makeUpdateReq(`/bookmarks/${rateId}`)({
+    "score": newScore
+  })
+}
 
 
 export const addComment = makePostReq("/comments", { auth: true });

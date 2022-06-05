@@ -1,4 +1,4 @@
-import { BOOKMARK_OPTIONS, toCoverUri } from "../../share";
+import { BOOKMARK_OPTIONS, round, toCoverUri } from "../../share";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
@@ -18,19 +18,26 @@ import { sdk } from "../../../core";
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 
-const calcRate = (sum, count) => (Math.round(count === 0 ? 2.5 : sum / (2.0 * count) * 100) / 100).toFixed(2);
 const { width } = Dimensions.get("window");
 
 export const BookView = ({ infoBook, handleNewComment }) => {
   const [showSynopsis, setShowSynopsis] = useState(false);
   const [openSheet, setOpenSheet] = useState(false);
-  const [rating, setRating] = useState(2.5);
+  const [rateScore, setRateScore] = useState(2.5);
+  const [rateId, setRateId] = useState(null);
   const [draftComment, setDraftComment] = useState("");
+  const [bookmark, setBookmark] = useState(null)
 
   const navigation = useNavigation();
 
   useEffect(() => {
-    
+    sdk.checkBookmark(infoBook.id)
+      .then(data => { setBookmark(data) })
+      .catch(_ => { setBookmark(null) })
+
+    sdk.checkRate(infoBook.id)
+      .then(data => { setRateScore(data["rate_value"]); setRateId(data.id); })
+      .catch(_ => { })
   }, [])
 
   const showFullSynopsis = () => {
@@ -57,6 +64,42 @@ export const BookView = ({ infoBook, handleNewComment }) => {
     // .catch(_ => navigation.navigate(routesName.LOGIN_SCREEN))
   };
 
+  const updateRate = (score) => {
+    setRateScore(score)
+    if (rateId === null) {
+      sdk.rateBook({
+        "score": score,
+        "book_id": infoBook.id
+      }).then(data => setRateId(data.id))
+      return
+    }
+    sdk.updateRate(rateId, score)
+  }
+
+
+  const updateBookmark = (typeId) => {
+    if (!bookmark) {
+      if (typeId < 4) {
+        sdk.addBookmark({
+          "book_id": infoBook.id,
+          "bookmark_type": typeId
+        })
+          .then(data => setBookmark(data))
+      }
+      return
+    }
+
+    if (typeId < 4) {
+      sdk.updateBookmark(bookmark.id, typeId).then(data => setBookmark(data))
+      return
+    }
+
+    if (typeId === 4) {
+      sdk.deleteBookmark(bookmark.id)
+        .then(_ => setBookmark(null))
+    }
+  }
+
   return (
     <View style={{ backgroundColor: "#FDF5E6" }}>
       <ImageBackground
@@ -82,7 +125,7 @@ export const BookView = ({ infoBook, handleNewComment }) => {
 
           <TouchableOpacity onPress={() => { setOpenSheet(true) }} >
             <MaterialCommunityIcons
-              name={"bookmark-outline"}
+              name={bookmark ? "bookmark" : "bookmark-outline"}
               size={40}
               color={"green"}
             />
@@ -98,7 +141,7 @@ export const BookView = ({ infoBook, handleNewComment }) => {
           <Text>
             {showSynopsis
               ? infoBook.description
-              : infoBook.description?.slice(0, 200) + "..."}
+              : infoBook.description?.slice(0, 100) + "..."}
             <Text style={styles.showMore} onPress={showFullSynopsis}>
               {showSynopsis ? " Show less" : " Show more"}
             </Text>
@@ -133,17 +176,19 @@ export const BookView = ({ infoBook, handleNewComment }) => {
         </View>
 
         <Text style={{ fontSize: 17, fontFamily: "Roboto_500Medium", marginTop: 10 }}>
-          Avg rate: {calcRate(infoBook["rate_sum"], infoBook["rate_count"])}/5 ( {infoBook["rate_count"]} )
+          Avg rating: {round(infoBook["rate_avg"])}/5 ( {infoBook["rate_count"]} )
         </Text>
 
         <View style={styles.rating}>
           <Text style={{ fontSize: 17, fontFamily: "Roboto_500Medium", marginRight: 10 }}>
-            Your rate:
+            Your rating:
           </Text>
           <Rating
             type="star"
-            startingValue={rating}
+            startingValue={rateScore ?? 2.5}
             imageSize={30}
+            ratingBackgroundColor={"red"}
+            onFinishRating={updateRate}
           />
         </View>
         <View style={{ height: 10 }} />
@@ -177,26 +222,18 @@ export const BookView = ({ infoBook, handleNewComment }) => {
             return (
               <ListItem
                 key={i}
-                // containerStyle={l.containerStyle}
                 onPress={() => {
+                  updateBookmark(i)
                   setOpenSheet(false);
+                }}
+                containerStyle={{
+                  backgroundColor: bookmark?.type === i ? 'green' : 'white'
                 }}
               >
                 <ListItem.Content>
                   <ListItem.Title>
                     <View style={styles.bottomSheet}>
                       <Text>{l}</Text>
-                      {/* {i !== 3 && selectedOption === i ? (
-                                <Text>
-                                  <Icon name="done" color="green" />
-                                </Text>
-                              ) : i === 3 ? (
-                                <Text>
-                                  <Icon name="close" color="red" />
-                                </Text>
-                              ) : (
-                                <></>
-                              )} */}
                     </View>
                   </ListItem.Title>
                 </ListItem.Content>
@@ -236,11 +273,10 @@ const categoryTags = (str = "") => {
   }
   str.split(",").map((s) => {
     s = s.trim()
-    console.log(s);
     s = sdk.getCategoryName(parseInt(s))
     tags.push(
       <TouchableOpacity
-        key={`publisher-${tags.length}`}
+        key={`category-${tags.length}`}
         style={{ backgroundColor: '#808080', padding: 5, borderRadius: 2, margin: 3 }}
       >
         <Text style={{ color: 'white' }} >{s}</Text>

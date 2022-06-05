@@ -1,4 +1,4 @@
-import {useFonts, FONTS} from "../../share"
+import { useFonts, FONTS } from "../../share"
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
@@ -18,35 +18,43 @@ import { renderBookItem } from "../home/BookItem";
 import { sdk } from "../../../core";
 
 const { width } = Dimensions.get("window");
-let bookOptions = ["Wanna Read", "Reading", "Read", "Favorites"];
+let bookmarkTypes = ["Wanna Read", "Reading", "Read", "Favorites"];
 
 const FavoriteScreen = () => {
   const inset = useSafeAreaInsets();
+  const [allBookmarks, setAllBookmarks] = useState([]);
   const [books, setBooks] = useState(SAMPLE_BOOKS);
   let [fontsLoaded] = useFonts(FONTS);
   const navigation = useNavigation();
   const isFocused = useIsFocused();
-  const [type, setType] = useState("Wanna Read");
+  const [type, setType] = useState(0);
 
   useEffect(() => {
+    sdk.getBookmarks().then(({ data }) => {
+      setAllBookmarks(data)
+      setBooks(data.filter(b => b["bookmark_type"] == type))
+    })
   }, [])
+
+  useEffect(() => {
+    setBooks(allBookmarks.filter(b => b["bookmark_type"] == type))
+  }, [type])
 
   const renderItemTab = (item, index) => {
     return (
       <TouchableOpacity
-        onPress={() => {
-          setType(item);
-        }}
+        onPress={() => { setType(index); }}
         key={index}
         style={{
           width: (width - 52) / 4,
           alignItems: "center",
           backgroundColor:
-            type === item ? theme.colors.white : theme.colors.blue,
+            type === index ? theme.colors.white : theme.colors.blue,
           justifyContent: "center",
-          height: 45,
+          height: 40,
           borderRadius: 8,
           marginRight: 5,
+          marginTop: 10,
           shadowColor: "#000",
           shadowOffset: {
             width: 0,
@@ -55,13 +63,13 @@ const FavoriteScreen = () => {
           shadowOpacity: 0.25,
           shadowRadius: 3.84,
 
-          elevation: 5,
+          elevation: 4,
         }}
       >
         <Text
           style={{
             fontFamily: "Oswald_500Medium",
-            color: type === item ? "black" : "white",
+            color: type === index ? "black" : "white",
           }}
         >
           {item}
@@ -73,9 +81,9 @@ const FavoriteScreen = () => {
   return (
     <View style={[styles.container, { paddingTop: inset.top }]}>
       {fontsLoaded && (
-        <View style={{ paddingHorizontal: 16, flex: 1 }}>
+        <View style={{ paddingHorizontal: 8, flex: 1 }}>
           <View style={{ flexDirection: "row" }}>
-            {bookOptions.map(renderItemTab)}
+            {bookmarkTypes.map(renderItemTab)}
           </View>
           <FlatList
             style={{ flex: 1 }}
@@ -83,10 +91,10 @@ const FavoriteScreen = () => {
             data={books}
             renderItem={renderBookItem(navigation)}
             keyExtractor={(item, index) => index.toString()}
+            ListFooterComponent={<View style={{ height: inset.bottom + 50 }} />}
           />
         </View>
       )}
-      <View style={{ height: inset.bottom + 100 }} />
     </View>
   );
 };
